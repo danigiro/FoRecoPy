@@ -1,6 +1,6 @@
 # FoRecoPy: Forecast Reconciliation in Python <img src="sphinx/source/forecopy.svg" alt="logo" align="right" width="150" style="border: none; float: right;"/>
 
-[![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=7N4NN2UGPP)](https://codecov.io/github/danigiro/FoRecoPy)
+[![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=S7CMY2OT3U)](https://codecov.io/github/danigiro/FoRecoPy)
 
 Forecast reconciliation is a post-forecasting process aimed at improving the
 accuracy and coherence of forecasts for a system of **linearly constrained
