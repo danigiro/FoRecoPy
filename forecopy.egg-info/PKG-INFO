@@ -12,7 +12,7 @@ Project-URL: download, https://pypi.org/project/forecopy/#files
 Project-URL: tracker, https://github.com/danigiro/forecopy/issues
 Project-URL: changelog, https://danigiro.github.io/forecopy/changelog.html
 Project-URL: PyPI, https://pypi.org/project/forecopy
-Keywords: forecasting,reconciliation
+Keywords: forecasting,reconciliation,forecast,time-series
 Classifier: Programming Language :: Python :: 3
 Classifier: Operating System :: Microsoft :: Windows
 Classifier: Operating System :: POSIX
@@ -30,7 +30,7 @@ Dynamic: license-file
 
 # FoRecoPy: Forecast Reconciliation in Python <img src="sphinx/source/forecopy.svg" alt="logo" align="right" width="150" style="border: none; float: right;"/>
 
-[![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=7N4NN2UGPP)](https://codecov.io/github/danigiro/FoRecoPy)
+[![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=S7CMY2OT3U)](https://codecov.io/github/danigiro/FoRecoPy)
 
 Forecast reconciliation is a post-forecasting process aimed at improving the
 accuracy and coherence of forecasts for a system of **linearly constrained
