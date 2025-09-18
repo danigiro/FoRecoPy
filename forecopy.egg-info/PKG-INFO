@@ -1,3 +1,33 @@
+Metadata-Version: 2.4
+Name: forecopy
+Version: 0.1.0
+Summary: Forecast Reconciliation in Python
+Author: Daniele Girolimetto
+Maintainer-email: Daniele Girolimetto <daniele.girolimetto@unipd.it>
+License-Expression: MIT
+Project-URL: homepage, https://danigiro.github.io/forecopy/
+Project-URL: documentation, https://danigiro.github.io/forecopy/overview.html
+Project-URL: source, https://github.com/danigiro/forecopy
+Project-URL: download, https://pypi.org/project/forecopy/#files
+Project-URL: tracker, https://github.com/danigiro/forecopy/issues
+Project-URL: changelog, https://danigiro.github.io/forecopy/changelog.html
+Project-URL: PyPI, https://pypi.org/project/forecopy
+Keywords: forecasting,reconciliation
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=2.0.2
+Requires-Dist: pandas>=2.2.2
+Requires-Dist: scipy>=1.14.1
+Requires-Dist: jax>=0.4.31
+Requires-Dist: lineax>=0.0.8
+Dynamic: license-file
+
 # FoRecoPy: Forecast Reconciliation in Python <img src="sphinx/source/forecopy.svg" alt="logo" align="right" width="150" style="border: none; float: right;"/>
 
 [![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=7N4NN2UGPP)](https://codecov.io/github/danigiro/FoRecoPy)

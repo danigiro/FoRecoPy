@@ -1,5 +1,46 @@
 [project]
-name = "FoRecoPy"
+name = "forecopy"
 version = "0.1.0"
-requires-python = ">= 3.13.7"
-dependencies = []
+description = "Forecast Reconciliation in Python"
+authors = [{name = "Daniele Girolimetto"}]
+maintainers = [
+    {name = "Daniele Girolimetto", email="daniele.girolimetto@unipd.it"},
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = "MIT"
+keywords = ["forecasting", "reconciliation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS'
+]
+
+dependencies = [
+    "numpy>=2.0.2",
+    "pandas>=2.2.2",
+    "scipy>=1.14.1",
+    "jax>=0.4.31",
+    "lineax>=0.0.8"
+]
+
+[tool.setuptools]
+packages = ["forecopy"]
+
+[dependency-groups]
+docs = ["sphinx", "sphinxawesome_theme"]
+
+[project.urls]
+homepage = "https://danigiro.github.io/forecopy/"
+documentation = "https://danigiro.github.io/forecopy/overview.html"
+source = "https://github.com/danigiro/forecopy"
+download = "https://pypi.org/project/forecopy/#files"
+tracker = "https://github.com/danigiro/forecopy/issues"
+changelog = "https://danigiro.github.io/forecopy/changelog.html"
+PyPI = "https://pypi.org/project/forecopy"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
