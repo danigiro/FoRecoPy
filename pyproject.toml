@@ -33,12 +33,12 @@ packages = ["forecopy"]
 docs = ["sphinx", "sphinxawesome_theme"]
 
 [project.urls]
-homepage = "https://danigiro.github.io/forecopy/"
-documentation = "https://danigiro.github.io/forecopy/overview.html"
-source = "https://github.com/danigiro/forecopy"
+homepage = "https://danigiro.github.io/FoRecoPy/"
+documentation = "https://danigiro.github.io/FoRecoPy/overview.html"
+source = "https://github.com/danigiro/FoRecoPy"
 download = "https://pypi.org/project/forecopy/#files"
 tracker = "https://github.com/danigiro/forecopy/issues"
-changelog = "https://danigiro.github.io/forecopy/changelog.html"
+changelog = "https://danigiro.github.io/FoRecoPy/changelog.html"
 PyPI = "https://pypi.org/project/forecopy"
 
 [build-system]

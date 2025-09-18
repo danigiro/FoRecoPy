@@ -1,4 +1,4 @@
-# FoRecoPy: Forecast Reconciliation in Python <img src="sphinx/source/forecopy.svg" alt="logo" align="right" width="150" style="border: none; float: right;"/>
+# FoRecoPy: Forecast Reconciliation in Python <img src="sphinx/source/forecopy.svg" alt="" align="right" width="150" style="border: none; float: right;"/>
 
 [![pytest](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml/badge.svg)](https://github.com/danigiro/FoRecoPy/actions/workflows/test.yml) [![codecov](https://codecov.io/github/danigiro/FoRecoPy/graph/badge.svg?token=S7CMY2OT3U)](https://codecov.io/github/danigiro/FoRecoPy)
 
