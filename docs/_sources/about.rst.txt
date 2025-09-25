@@ -9,12 +9,12 @@ Authors
 Citation (*Python package*)
 ---------------------------
 
-* Girolimetto D (2025). **FoRecoPy**: Forecast reconciliation with python. 
+* Girolimetto D. and Zhang B. (2025). **FoRecoPy**: Forecast reconciliation with python. 
   *Python package*. https://github.com/danigiro/FoRecoPy::
 
     @Manual{,
         title = {FoRecoPy: Forecast reconciliation with python},
-        author = {Daniele Girolimetto},
+        author = {Daniele Girolimetto, Bohan Zhang},
         organization = {Python package},
         year = {2025},
         url = {https://github.com/danigiro/FoRecoPy}
