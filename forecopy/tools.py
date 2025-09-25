@@ -171,7 +171,7 @@ class tetools:
     Parameters
     ----------
 
-    ``agg_order``: list
+    ``agg_order``: list | int
         Highest available sampling frequency per seasonal cycle (max. order 
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
