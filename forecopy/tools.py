@@ -265,19 +265,16 @@ class tetools:
     >>> obj2._agg_mat.shape      # i.e., (2+4+24, 12) = (30, 12)
     ( (12/6)*2 + (12/3)*2 + (12/1)*2, 12 )
     """
-    def __init__(self, agg_order: list, tew: str="sum", fh: int=1):
+    def __init__(self, agg_order: list | int, tew: str="sum", fh: int=1):
 
-        if isinstance(agg_order, int):
-            agg_order = [agg_order]
-        
         self.m = np.max(agg_order)
-        kset = factors(self.m)
-        if len(agg_order) != 1:
-            self.kset = sorted([i for i in agg_order if i in kset], reverse=True)
-            if min(self.kset) != 1:
-                self.kset = [1] + self.kset
+        kset_full = factors(self.m) 
+        if isinstance(agg_order, int):
+            kset = kset_full
         else:
-            self.kset = kset
+            kset = sorted([i for i in agg_order if i in kset_full], reverse=True)
+            if min(kset) != 1:
+                self.kset = self.kset + [1]
         self.kset = [int(i) for i in kset]
         self.p = len(self.kset)
         self.ks = int(sum(self.m/jnp.array(self.kset[0:-1])))
@@ -296,7 +293,7 @@ class tetools:
             raise ValueError('tew')
 
         freq = self.m/np.array(self.kset)
-        agg_mat = [jnp.kron(jnp.eye(int(freq[i])*fh), weights[i]) for i in range(0, (len(freq)-1))]
+        agg_mat = [jnp.kron(jnp.eye(int(freq[i])*fh), weights[i]) for i in range((len(freq)-1))]
         self._agg_mat = jnp.vstack(agg_mat)
         self._cons_mat = None
         self._strc_mat = None
