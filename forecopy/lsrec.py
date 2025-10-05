@@ -26,7 +26,6 @@ def csrec(
     base: jnp.ndarray,
     agg_mat: jnp.ndarray = None,
     cons_mat: jnp.ndarray = None,
-    params: cstools = None,
     comb: str = 'ols',
     res: jnp.ndarray = None,
     cov_mat: jnp.ndarray = None,
@@ -57,19 +56,14 @@ def csrec(
         is the total number of time series (:math:`n = n_a + n_b`).
 
     ``agg_mat``: ndarray
-        A :math:`(n_a \\times n_b)` numeric matrix representing the 
-        cross-sectional aggregation matrix (alternative to ``cons_mat`` and 
-        ``params``). It maps the :math:`n_b` bottom-level (free) variables 
+        A :math:`(n_a \\times n_b)` numeric matrix representing the
+        cross-sectional aggregation matrix (alternative to ``cons_mat``).
+        It maps the :math:`n_b` bottom-level (free) variables
         into the :math:`n_a` upper (constrained) variables.
 
     ``cons_mat``: ndarray
-        A :math:`(n_a \\times n)` numeric matrix representing the 
-        cross-sectional zero constraints (alternative to ``agg_mat`` 
-        and ``params``).
-
-    ``params``: cstools
-         A :class:`cstools <forecopy.tools.cstools>` object (alternative to 
-         ``agg_mat`` and ``cons_mat``). 
+        A :math:`(n_a \\times n)` numeric matrix representing the
+        cross-sectional zero constraints (alternative to ``agg_mat``).
 
     ``comb``: str, default `ols`
         A string specifying the reconciliation method. For a complete list, 
@@ -147,15 +141,8 @@ def csrec(
     if len(base.shape) == 1:
         base = base[None, :]
 
-    if base.shape[1] == 1:
-        base = base.T
+    params = cstools(agg_mat=agg_mat, cons_mat=cons_mat)
 
-    if params is None:
-        params = cstools(agg_mat=agg_mat, cons_mat=cons_mat)
-    else:
-        if type(params) is not cstools:
-            raise TypeError("params is not a 'cstools' class")
-    
     id_nn = None
     if params.agg_mat is not None:
         id_nn = [False for i in range(0,params.dim[1])] + [True for i in range(0,params.dim[2])]
@@ -186,7 +173,7 @@ def csrec(
 def terec(
     base: jnp.ndarray,
     agg_order: list = None,
-    params: tetools = None,
+    fh: int = 1,
     comb: str = 'ols',
     res: jnp.ndarray = None,
     cov_mat: jnp.ndarray = None,
@@ -222,9 +209,9 @@ def terec(
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
 
-    ``params``: tetools
-        A :class:`tetools <forecopy.tools.tetools>` object (alternative 
-        to ``agg_order``). 
+    ``fh``: int
+        Forecast horizon for the lowest frequency (most temporally aggregated)
+        series.
 
     ``comb``: str, default `ols`
         A string specifying the reconciliation method. For a complete list, see 
@@ -306,11 +293,7 @@ def terec(
             raise ValueError("Base is not a vector.")
         base = base[0,:]
         
-    if params is None:
-        params = tetools(agg_order=agg_order, tew=tew)
-    else:
-        if type(params) is not tetools:
-            raise TypeError("params is not a 'tetools' class")
+    params = tetools(agg_order=agg_order, tew=tew, fh=fh)
     
     id_nn = None
     if params._agg_mat is not None:
