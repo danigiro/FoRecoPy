@@ -272,10 +272,10 @@ class tetools:
         if isinstance(agg_order, int):
             kset = kset_full
         else:
-            kset = sorted([i for i in agg_order if i in kset_full], reverse=True)
+            kset = sorted([int(i) for i in agg_order if i in kset_full], reverse=True)
             if min(kset) != 1:
-                self.kset = self.kset + [1]
-        self.kset = [int(i) for i in kset]
+                kset = kset + [1]
+        self.kset = kset
         self.p = len(self.kset)
         self.ks = int(sum(self.m/jnp.array(self.kset[0:-1])))
         self.kt = int(sum(self.m/jnp.array(self.kset)))
@@ -295,19 +295,13 @@ class tetools:
         freq = self.m/np.array(self.kset)
         agg_mat = [jnp.kron(jnp.eye(int(freq[i])*fh), weights[i]) for i in range((len(freq)-1))]
         self._agg_mat = jnp.vstack(agg_mat)
-        self._cons_mat = None
-        self._strc_mat = None
+        self._cons_mat = jnp.hstack((jnp.eye(self._agg_mat.shape[0]), -self._agg_mat))
+        self._strc_mat = jnp.vstack((self._agg_mat, jnp.eye(self._agg_mat.shape[1])))
 
     def strc_mat(self):
-        if self._strc_mat is None:
-            self._strc_mat = jnp.vstack((self._agg_mat, jnp.eye(self._agg_mat.shape[1])))
-        
         return self._strc_mat
     
-    def cons_mat(self):
-        if self._cons_mat is None:
-            self._cons_mat = jnp.hstack((jnp.eye(self._agg_mat.shape[0]), -self._agg_mat))
-        
+    def cons_mat(self):        
         return self._cons_mat
 
 
