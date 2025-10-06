@@ -15,6 +15,7 @@ Two main reconciliation functions are included:
   yearly).
 """
 import jax.numpy as jnp
+from typing import Optional
 
 # From forecopy
 from forecopy.tools import cstools, tetools
@@ -24,11 +25,10 @@ from forecopy.fun import vec2hmat, hmat2vec
 
 def csrec(
     base: jnp.ndarray,
-    agg_mat: jnp.ndarray = None,
-    cons_mat: jnp.ndarray = None,
-    comb: str = 'ols',
-    res: jnp.ndarray = None,
-    cov_mat: jnp.ndarray = None,
+    agg_mat: Optional[jnp.ndarray] = None,
+    cons_mat: Optional[jnp.ndarray] = None,
+    comb: str | jnp.ndarray = 'ols',
+    res: Optional[jnp.ndarray] = None,
     approach: str = 'proj',
     solver: str = 'default',
     tol: float = 1e-6,
@@ -55,13 +55,13 @@ def csrec(
         to be reconciled; :math:`h` is the forecast horizon, and :math:`n` 
         is the total number of time series (:math:`n = n_a + n_b`).
 
-    ``agg_mat``: ndarray
+    ``agg_mat``: ndarray, default None
         A :math:`(n_a \\times n_b)` numeric matrix representing the
         cross-sectional aggregation matrix (alternative to ``cons_mat``).
         It maps the :math:`n_b` bottom-level (free) variables
         into the :math:`n_a` upper (constrained) variables.
 
-    ``cons_mat``: ndarray
+    ``cons_mat``: ndarray, default None
         A :math:`(n_a \\times n)` numeric matrix representing the
         cross-sectional zero constraints (alternative to ``agg_mat``).
 
