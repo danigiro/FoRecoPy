@@ -65,16 +65,14 @@ def csrec(
         A :math:`(n_a \\times n)` numeric matrix representing the
         cross-sectional zero constraints (alternative to ``agg_mat``).
 
-    ``comb``: str, default `ols`
+    ``comb``: str | ndarray, default `ols`
         A string specifying the reconciliation method. For a complete list, 
         see :func:`cscov() <forecopy.cov.cscov>`
+        Alternatively, a custom :math:`(n \\times n)` covariance matrix.
 
-    ``res``: ndarray
+    ``res``: ndarray, default None
         An :math:`(N \\times n)` optional numeric matrix containing the 
         residuals. This matrix is used to compute some covariance matrices.
-
-    ``cov_mat``: jnp.ndarray
-        An :math:`(n \\times n)` covariance matrix (alternative to ``comb``).
 
     ``approach``: str, default `proj`
         A string specifying the approach used to compute the reconciled forecasts. 
@@ -152,12 +150,9 @@ def csrec(
 
     cov_mat = cscov(
         params=params, 
-        res=res, 
-        cov_mat=cov_mat
+        res=res
         ).fit(comb=comb, return_vector=True, **kwargs)
 
-    if cov_mat.shape[0] != params.dim[0]:
-        raise ValueError("Incorrect covariance dimensions. Check 'res' columns dimension.")
 
     reco = _reconcile(
         base=base, 

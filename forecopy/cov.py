@@ -18,7 +18,7 @@ Two main toolsets are included:
 """
 import jax.numpy as jnp
 from forecopy.tools import cstools, tetools
-from forecopy.fun import shrink_estim, sample_estim, factors, vec2hmat
+from forecopy.fun import shrink_estim, sample_estim, factors, vec2hmat, is_PD
 
 class cscov:
     """
@@ -76,14 +76,15 @@ class cscov:
     :func:`cstools <forecopy.tools.cstools>`
     :func:`csrec <forecopy.lsrec.csrec>`
     """
-    def __init__(self, params: cstools = None, res: jnp.ndarray = None, 
-                 cov_mat = None):
+    def __init__(self, params: cstools = None, res: jnp.ndarray = None):
+        if res is not None:
+            assert res.shape[1] == self.n, "The size of the residuals does not match."
         self.params = params
         self.n = params.dim[0]
         self.res = res
-        self.cov_mat = cov_mat
+        self.cov_mat = None
 
-    def fit(self, comb = 'ols', return_vector = False, shr_fun = shrink_estim, 
+    def fit(self, comb: str | jnp.ndarray = 'ols', return_vector = False, shr_fun = shrink_estim, 
             mse = True):
         """
         Estimate a cross-sectional covariance approximation.
@@ -91,7 +92,7 @@ class cscov:
         Parameters
         ----------
 
-        ``comb``: str, default 'ols'
+        ``comb``: str or ndarray, default 'ols'
             The approximation/reconciliation assumption to use:
 
               - `ols`: identity error covariance matrix.
@@ -99,6 +100,7 @@ class cscov:
               - `wls`: series-wise variances from residuals `res`.
               - `shr`: shrunk covariance of `res` (Wickramasuriya et al., 2019).
               - `sam` : sample covariance of `res`.
+              - A custom :math:`(n \\times n)` covariance matrix.
 
         ``return_vector``: bool, default `False`
             If True, return the diagonal of the matrix, only for 
@@ -118,20 +120,23 @@ class cscov:
         -------
         A :math:`(n \\times n)` symmetric positive (semi-)definite matrix.
         """
-        if self.cov_mat is not None:
+        if not isinstance(comb, str):
+            self.cov_mat = jnp.array(comb)
+            assert self.cov_mat.shape[0] == self.cov_mat.shape[1] == self.n, "custom matrix should be square."
+            assert is_PD(self.cov_mat), "custom matrix should be positive definite."
             return self.cov_mat
         elif comb == "ols":
-            return _cscov_ols(
+            self.cov_mat = _cscov_ols(
                 n = self.n, 
                 return_vector = return_vector
                 )
         elif comb == "str":
-            return _cscov_str(
+            self.cov_mat = _cscov_str(
                 strc_mat = self.params.strc_mat(), 
                 return_vector = return_vector
                 )
         elif comb == "wls":
-            return _cscov_wls(
+            self.cov_mat =_cscov_wls(
                 res = self.res, 
                 mse = mse, 
                 return_vector = return_vector
@@ -143,11 +148,13 @@ class cscov:
                 shr_fun = shr_fun
                 )
             self.lmb = out.get('lambda')
+            self.cov_mat = out.get('cov')
             return out.get('cov')
         elif comb == "sam":
-            return _cscov_sam(res = self.res, mse = mse)
+            self.cov_mat =_cscov_sam(res = self.res, mse = mse)
         else:
             raise Exception("Error cscov")
+        return self.cov_mat
 
 class tecov:
     """
