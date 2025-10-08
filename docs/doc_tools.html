@@ -6,12 +6,12 @@
 <meta charset="utf-8"/>
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
-<meta content="Docutils 0.18.1: http://docutils.sourceforge.net/" name="generator"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Reconciliation tools | FoRecoPy</title>
 <meta content="Reconciliation tools | FoRecoPy" property="og:title"/>
 <meta content="Reconciliation tools | FoRecoPy" name="twitter:title"/>
-<link href="_static/pygments.css?v=ef1dd98d" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=ecdfb4fc" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="_static/css/custom.css?v=cd7c67d7" rel="stylesheet" type="text/css"/>
 <link href="_static/forecopy.svg" rel="icon"/>
 <link href="search.html" rel="search" title="Search"/>
@@ -31,7 +31,7 @@
       if (!userPreference) {localStorage.setItem('darkMode', mode)}
     </script>
 </head>
-<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false }">
+<body :class="{ 'overflow-hidden': showSidebar }" @scroll.window="showScrollTop = pageYOffset &gt; 100" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
@@ -127,10 +127,10 @@ support for both cross-sectional and temporal frameworks. The tools in
 relationships and linear constraints, which serve as the foundation for
 different reconciliation methods. Two complementary toolsets are available:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#forecopy.tools.cstools" title="forecopy.tools.cstools"><code class="xref py py-func docutils literal notranslate"><span class="pre">cstools()</span></code></a>: 
+<li><p><a class="reference internal" href="#forecopy.tools.cstools" title="forecopy.tools.cstools"><code class="xref py py-func docutils literal notranslate"><span class="pre">cstools()</span></code></a>:
 For hierarchically, grouped, or otherwise linearly constrained series
 observed at the same frequency.</p></li>
-<li><p><a class="reference internal" href="#forecopy.tools.tetools" title="forecopy.tools.tetools"><code class="xref py py-func docutils literal notranslate"><span class="pre">tetools()</span></code></a>: 
+<li><p><a class="reference internal" href="#forecopy.tools.tetools" title="forecopy.tools.tetools"><code class="xref py py-func docutils literal notranslate"><span class="pre">tetools()</span></code></a>:
 For temporal hierarchies, where the same time series can be aggregated
 or linearly combined at multiple frequencies (e.g., monthly, quarterly,
 yearly). This allows one to reconcile forecasts across frequencies so that,
@@ -139,27 +139,27 @@ annual forecast.</p></li>
 </ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="forecopy.tools.cstools">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cstools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/tools.html#cstools"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.tools.cstools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.tools.cstools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cstools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/tools.html#cstools"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.tools.cstools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.tools.cstools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd><section id="cross-sectional-reconciliation-tools">
 <h2>Cross-sectional reconciliation tools<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#cross-sectional-reconciliation-tools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#cross-sectional-reconciliation-tools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <p>Utilities for working with linearly constrained (hierarchical/grouped)
 multivariate time series in a cross-sectional framework.</p>
 <p>This class encapsulates standard matrices used in forecast reconciliation:
-the aggregation matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>, the structural matrix 
-<span class="math notranslate nohighlight">\(\mathbf{S}\)</span>, and the zero-constraints matrix <span class="math notranslate nohighlight">\(\mathbf{C}\)</span>. 
-Given either <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> or <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> at construction, 
+the aggregation matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>, the structural matrix
+<span class="math notranslate nohighlight">\(\mathbf{S}\)</span>, and the zero-constraints matrix <span class="math notranslate nohighlight">\(\mathbf{C}\)</span>.
+Given either <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> or <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> at construction,
 the remaining matrices and dimension metadata are derived.</p>
 </section>
 <section id="parameters">
 <h2>Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#parameters" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#parameters'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>A (<span class="math notranslate nohighlight">\(n_a \times n_b\)</span>) numeric matrix representing the 
-cross-sectional aggregation matrix. It maps the <span class="math notranslate nohighlight">\(n_b\)</span> 
-bottom-level (free) variables into the <span class="math notranslate nohighlight">\(n_a\)</span> upper 
+<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>A (<span class="math notranslate nohighlight">\(n_a \times n_b\)</span>) numeric matrix representing the
+cross-sectional aggregation matrix. It maps the <span class="math notranslate nohighlight">\(n_b\)</span>
+bottom-level (free) variables into the <span class="math notranslate nohighlight">\(n_a\)</span> upper
 (constrained) variables.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cons_mat</span></code>: ndarray</dt><dd><p>A (<span class="math notranslate nohighlight">\(n_a \times n\)</span>) numeric matrix representing the 
-cross-sectional zero constraints. It spans the null space 
+<dt><code class="docutils literal notranslate"><span class="pre">cons_mat</span></code>: ndarray</dt><dd><p>A (<span class="math notranslate nohighlight">\(n_a \times n\)</span>) numeric matrix representing the
+cross-sectional zero constraints. It spans the null space
 for the reconciled forecasts.</p>
 </dd>
 </dl>
@@ -167,21 +167,21 @@ for the reconciled forecasts.</p>
 <section id="attributes">
 <h2>Attributes<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#attributes" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#attributes'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>The aggregation matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> 
+<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>The aggregation matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>
 (may be inferred from <span class="math notranslate nohighlight">\(\mathbf{C}\)</span>).</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">dim</span></code>: tuple</dt><dd><p>Dimension summary:</p>
 <ul class="simple">
-<li><p>if <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> given: <span class="math notranslate nohighlight">\((n, n_a, n_b)\)</span> with 
+<li><p>if <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> given: <span class="math notranslate nohighlight">\((n, n_a, n_b)\)</span> with
 <span class="math notranslate nohighlight">\(n = n_a + n_b\)</span>.</p></li>
-<li><p>if <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> given: <span class="math notranslate nohighlight">\((n, r, n - r)\)</span> with 
+<li><p>if <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> given: <span class="math notranslate nohighlight">\((n, r, n - r)\)</span> with
 <span class="math notranslate nohighlight">\(r = \text{ rank/rows of } \mathbf{C}\)</span>.</p></li>
 </ul>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">_cons_mat</span></code>: ndarray</dt><dd><p>The constraints matrix <span class="math notranslate nohighlight">\(\mathbf{C}\)</span>, built on demand 
+<dt><code class="docutils literal notranslate"><span class="pre">_cons_mat</span></code>: ndarray</dt><dd><p>The constraints matrix <span class="math notranslate nohighlight">\(\mathbf{C}\)</span>, built on demand
 if <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is provided.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">_strc_mat</span></code>: ndarray</dt><dd><p>The structural matrix 
+<dt><code class="docutils literal notranslate"><span class="pre">_strc_mat</span></code>: ndarray</dt><dd><p>The structural matrix
 <span class="math notranslate nohighlight">\(\mathbf{S} = [\mathbf{A}'\quad\mathbf{I}_{n_b}]'\)</span>.</p>
 </dd>
 </dl>
@@ -203,12 +203,12 @@ Requires <cite>agg_mat</cite> to be available.</p>
 <ul>
 <li><p><span class="math notranslate nohighlight">\(\mathbf{A}\)</span> has shape <span class="math notranslate nohighlight">\((n_a, n_b)\)</span>.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\mathbf{S}\)</span> has shape <span class="math notranslate nohighlight">\((n_a + n_b, n_b) = (n, n_b)\)</span>.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\mathbf{C}\)</span> has shape <span class="math notranslate nohighlight">\((n_a, n) = (n_a, n_a + n_b)\)</span> 
+<li><p><span class="math notranslate nohighlight">\(\mathbf{C}\)</span> has shape <span class="math notranslate nohighlight">\((n_a, n) = (n_a, n_a + n_b)\)</span>
 when built from <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>.</p></li>
 </ul>
 </li>
-<li><p>When initialized with <cite>cons_mat</cite>, <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is only inferred 
-if the leading <span class="math notranslate nohighlight">\((r\times r)\)</span> block equals the identity; 
+<li><p>When initialized with <cite>cons_mat</cite>, <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is only inferred
+if the leading <span class="math notranslate nohighlight">\((r\times r)\)</span> block equals the identity;
 specifically, if <span class="math notranslate nohighlight">\(\mathbf{C} = [\mathbf{I}_{r}\quad-\mathbf{A}]\)</span>.</p></li>
 </ul>
 </section>
@@ -219,8 +219,8 @@ specifically, if <span class="math notranslate nohighlight">\(\mathbf{C} = [\mat
 </section>
 <section id="examples">
 <h2>Examples<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#examples" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#examples'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
-</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">forecopy</span> <span class="k">as</span> <span class="nn">rpy</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">forecopy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rpy</span>
 </span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="c1"># One-level hierarchy: Z = X + Y</span>
 </span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]])</span>            <span class="c1"># shape (n_a=1, n_b=2)</span>
 </span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">tools</span> <span class="o">=</span> <span class="n">rpy</span><span class="o">.</span><span class="n">cstools</span><span class="p">(</span><span class="n">agg_mat</span><span class="o">=</span><span class="n">A</span><span class="p">)</span>
@@ -232,7 +232,7 @@ specifically, if <span class="math notranslate nohighlight">\(\mathbf{C} = [\mat
 </span><span id="line-11"><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">cons_mat</span><span class="p">()</span>
 </span><span id="line-12"><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span>                                    <span class="c1"># [I_1  -A]</span>
 </span><span id="line-13"><span class="go">Array([[ 1., -1., -1.]], dtype=float32)</span>
-</span><span id="line-14"><span class="gp">&gt;&gt;&gt; </span>
+</span><span id="line-14"><span class="gp">&gt;&gt;&gt;</span>
 </span><span id="line-15"><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Start from constraints: C = [1, -1, -1]</span>
 </span><span id="line-16"><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">]])</span>      <span class="c1"># r=1, n=3</span>
 </span><span id="line-17"><span class="gp">&gt;&gt;&gt; </span><span class="n">tools2</span> <span class="o">=</span> <span class="n">rpy</span><span class="o">.</span><span class="n">cstools</span><span class="p">(</span><span class="n">cons_mat</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
@@ -248,7 +248,7 @@ specifically, if <span class="math notranslate nohighlight">\(\mathbf{C} = [\mat
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="forecopy.tools.tetools">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tetools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tew</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/tools.html#tetools"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.tools.tetools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.tools.tetools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tetools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tew</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/tools.html#tetools"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.tools.tetools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.tools.tetools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd><section id="temporal-reconciliation-tools">
 <h2>Temporal reconciliation tools<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#temporal-reconciliation-tools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#temporal-reconciliation-tools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <p>Utilities for forecast reconciliation through temporal hierarchies.</p>
@@ -260,7 +260,7 @@ reconciliation.</p>
 <section id="id1">
 <h2>Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id1" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">agg_order</span></code>: list</dt><dd><p>Highest available sampling frequency per seasonal cycle (max. order 
+<dt><code class="docutils literal notranslate"><span class="pre">agg_order</span></code>: list | int</dt><dd><p>Highest available sampling frequency per seasonal cycle (max. order
 of temporal aggregation, <span class="math notranslate nohighlight">\(m\)</span>), or a list representing a
 subset of <span class="math notranslate nohighlight">\(p\)</span> factors of <span class="math notranslate nohighlight">\(m\)</span>.</p>
 </dd>
@@ -297,10 +297,10 @@ of positive factors of <cite>m</cite>.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">_agg_mat</span></code>: jnp.ndarray</dt><dd><p>Temporal aggregation matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">_strc_mat</span></code>: jnp.ndarray or None</dt><dd><p>Temporal structural matrix, 
+<dt><code class="docutils literal notranslate"><span class="pre">_strc_mat</span></code>: jnp.ndarray or None</dt><dd><p>Temporal structural matrix,
 <span class="math notranslate nohighlight">\(\mathbf{S} = [\mathbf{A}'\quad\mathbf{I}_{m}]'\)</span>.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">_cons_mat</span></code>: jnp.ndarray or None</dt><dd><p>Temporal zero-constraints matrix, 
+<dt><code class="docutils literal notranslate"><span class="pre">_cons_mat</span></code>: jnp.ndarray or None</dt><dd><p>Temporal zero-constraints matrix,
 <span class="math notranslate nohighlight">\(\mathbf{C} = [\mathbf{I}_{k^\ast}\quad-\mathbf{A}]\)</span>.</p>
 </dd>
 </dl>
@@ -335,9 +335,9 @@ of positive factors of <cite>m</cite>.</p>
 </section>
 <section id="id6">
 <h2>Examples<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id6" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id6'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
-</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">forecopy</span> <span class="k">as</span> <span class="nn">rpy</span>
-</span><span id="line-3"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+</span><span id="line-2"><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">forecopy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rpy</span>
+</span><span id="line-3"><span class="gp">&gt;&gt;&gt;</span>
 </span><span id="line-4"><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Quarterly over monthly (m = 4), full factor set {4,2,1}</span>
 </span><span id="line-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">rpy</span><span class="o">.</span><span class="n">tetools</span><span class="p">(</span><span class="n">agg_order</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">tew</span><span class="o">=</span><span class="s1">'sum'</span><span class="p">,</span> <span class="n">fh</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </span><span id="line-6"><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="n">kset</span>
@@ -347,7 +347,7 @@ of positive factors of <cite>m</cite>.</p>
 </span><span id="line-10"><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">cons_mat</span><span class="p">()</span>
 </span><span id="line-11"><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">S</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">shape</span>
 </span><span id="line-12"><span class="go">((3, 4), (7, 4), (3, 7))</span>
-</span><span id="line-13"><span class="gp">&gt;&gt;&gt; </span>
+</span><span id="line-13"><span class="gp">&gt;&gt;&gt;</span>
 </span><span id="line-14"><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Custom set (divisors of m=12 that you care about): {12, 6, 3, 1}</span>
 </span><span id="line-15"><span class="gp">&gt;&gt;&gt; </span><span class="n">obj2</span> <span class="o">=</span> <span class="n">rpy</span><span class="o">.</span><span class="n">tetools</span><span class="p">(</span><span class="n">agg_order</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fh</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </span><span id="line-16"><span class="gp">&gt;&gt;&gt; </span><span class="n">obj2</span><span class="o">.</span><span class="n">kset</span>
@@ -372,15 +372,20 @@ of positive factors of <cite>m</cite>.</p>
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© %YYYY, Daniele Girolimetto Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 7.3.7</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025YYY, Daniele Girolimetto Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.2.3</a></p>
 </div>
 </div>
 </footer>
-</div>
-<script src="_static/documentation_options.js?v=01f34227"></script>
-<script src="_static/doctools.js?v=9a2dae69"></script>
+</div><button :class="{'opacity-0 invisible' : !showScrollTop}" @click="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 p-2 z-10 rounded-sm bg-gray-700 text-xs text-white transition-all duration-1000 hover:bg-gray-950 focus:bg-gray-950" id="scrolltop" x-cloak="">
+<svg aria-hidden="true" class="inline fill-current mb-[2px]" height="14" viewbox="0 96 960 960" width="14" xmlns="http://www.w3.org/2000/svg">
+<path d="M450 896V370L202 618l-42-42 320-320 320 320-42 42-248-248v526h-60Z"></path>
+</svg>
+  Back to top
+</button>
+<script src="_static/documentation_options.js?v=1e4afec3"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-<script defer="defer" src="_static/theme.js?v=e82a16a3"></script>
+<script defer="defer" src="_static/theme.js?v=073f68d9"></script>
 <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>

@@ -6,12 +6,12 @@
 <meta charset="utf-8"/>
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
-<meta content="Docutils 0.18.1: http://docutils.sourceforge.net/" name="generator"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Optimal combination reconciliation | FoRecoPy</title>
 <meta content="Optimal combination reconciliation | FoRecoPy" property="og:title"/>
 <meta content="Optimal combination reconciliation | FoRecoPy" name="twitter:title"/>
-<link href="_static/pygments.css?v=ef1dd98d" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=ecdfb4fc" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="_static/css/custom.css?v=cd7c67d7" rel="stylesheet" type="text/css"/>
 <link href="_static/forecopy.svg" rel="icon"/>
 <link href="search.html" rel="search" title="Search"/>
@@ -31,7 +31,7 @@
       if (!userPreference) {localStorage.setItem('darkMode', mode)}
     </script>
 </head>
-<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false }">
+<body :class="{ 'overflow-hidden': showSidebar }" @scroll.window="showScrollTop = pageYOffset &gt; 100" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
@@ -126,60 +126,60 @@ combination</strong>, with support for both cross-sectional and temporal
 frameworks.</p>
 <p>Two main reconciliation functions are included:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#forecopy.lsrec.csrec" title="forecopy.lsrec.csrec"><code class="xref py py-func docutils literal notranslate"><span class="pre">csres()</span></code></a>: 
+<li><p><a class="reference internal" href="#forecopy.lsrec.csrec" title="forecopy.lsrec.csrec"><code class="xref py py-func docutils literal notranslate"><span class="pre">csres()</span></code></a>:
 For hierarchically, grouped, or otherwise linearly constrained series
 observed at the same frequency.</p></li>
-<li><p><a class="reference internal" href="#forecopy.lsrec.terec" title="forecopy.lsrec.terec"><code class="xref py py-func docutils literal notranslate"><span class="pre">teres()</span></code></a>: 
+<li><p><a class="reference internal" href="#forecopy.lsrec.terec" title="forecopy.lsrec.terec"><code class="xref py py-func docutils literal notranslate"><span class="pre">teres()</span></code></a>:
 For temporal hierarchies, where the same time series can be aggregated or
 linearly combined at multiple frequencies (e.g., monthly, quarterly,
 yearly).</p></li>
 </ul>
 <dl class="py function">
 <dt class="sig sig-object py" id="forecopy.lsrec.csrec">
-<span class="sig-name descname"><span class="pre">csrec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="doc_tools.html#forecopy.tools.cstools" title="forecopy.tools.cstools"><span class="pre">cstools</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ols'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'proj'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/lsrec.html#csrec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.lsrec.csrec" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.lsrec.csrec'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<span class="sig-name descname"><span class="pre">csrec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cons_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="doc_tools.html#forecopy.tools.cstools" title="forecopy.tools.cstools"><span class="pre">cstools</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ols'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'proj'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">immutable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/lsrec.html#csrec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.lsrec.csrec" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.lsrec.csrec'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd><section id="optimal-combination-cross-sectional-reconciliation">
 <h2>Optimal combination cross-sectional reconciliation<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#optimal-combination-cross-sectional-reconciliation" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#optimal-combination-cross-sectional-reconciliation'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>This function performs optimal (in least squares sense) combination 
-cross-sectional forecast reconciliation for a linearly constrained 
-(e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al., 
-2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The 
-reconciled forecasts are calculated using either a projection approach 
-(Byron, 1978, 1979) or the equivalent structural approach by Hyndman et 
+<p>This function performs optimal (in least squares sense) combination
+cross-sectional forecast reconciliation for a linearly constrained
+(e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al.,
+2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The
+reconciled forecasts are calculated using either a projection approach
+(Byron, 1978, 1979) or the equivalent structural approach by Hyndman et
 al. (2011).</p>
 </section>
 <section id="parameters">
 <h2>Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#parameters" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#parameters'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">base</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((h \times n)\)</span> numeric matrix containing the base forecasts 
-to be reconciled; <span class="math notranslate nohighlight">\(h\)</span> is the forecast horizon, and <span class="math notranslate nohighlight">\(n\)</span> 
+<dt><code class="docutils literal notranslate"><span class="pre">base</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((h \times n)\)</span> numeric matrix containing the base forecasts
+to be reconciled; <span class="math notranslate nohighlight">\(h\)</span> is the forecast horizon, and <span class="math notranslate nohighlight">\(n\)</span>
 is the total number of time series (<span class="math notranslate nohighlight">\(n = n_a + n_b\)</span>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((n_a \times n_b)\)</span> numeric matrix representing the 
-cross-sectional aggregation matrix (alternative to <code class="docutils literal notranslate"><span class="pre">cons_mat</span></code> and 
-<code class="docutils literal notranslate"><span class="pre">params</span></code>). It maps the <span class="math notranslate nohighlight">\(n_b\)</span> bottom-level (free) variables 
+<dt><code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((n_a \times n_b)\)</span> numeric matrix representing the
+cross-sectional aggregation matrix (alternative to <code class="docutils literal notranslate"><span class="pre">cons_mat</span></code> and
+<code class="docutils literal notranslate"><span class="pre">params</span></code>). It maps the <span class="math notranslate nohighlight">\(n_b\)</span> bottom-level (free) variables
 into the <span class="math notranslate nohighlight">\(n_a\)</span> upper (constrained) variables.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cons_mat</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((n_a \times n)\)</span> numeric matrix representing the 
-cross-sectional zero constraints (alternative to <code class="docutils literal notranslate"><span class="pre">agg_mat</span></code> 
+<dt><code class="docutils literal notranslate"><span class="pre">cons_mat</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\((n_a \times n)\)</span> numeric matrix representing the
+cross-sectional zero constraints (alternative to <code class="docutils literal notranslate"><span class="pre">agg_mat</span></code>
 and <code class="docutils literal notranslate"><span class="pre">params</span></code>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">params</span></code>: cstools</dt><dd><p>A <a class="reference internal" href="doc_tools.html#forecopy.tools.cstools" title="forecopy.tools.cstools"><code class="xref py py-class docutils literal notranslate"><span class="pre">cstools</span></code></a> object (alternative to 
+<dt><code class="docutils literal notranslate"><span class="pre">params</span></code>: cstools</dt><dd><p>A <a class="reference internal" href="doc_tools.html#forecopy.tools.cstools" title="forecopy.tools.cstools"><code class="xref py py-class docutils literal notranslate"><span class="pre">cstools</span></code></a> object (alternative to
 <code class="docutils literal notranslate"><span class="pre">agg_mat</span></code> and <code class="docutils literal notranslate"><span class="pre">cons_mat</span></code>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">comb</span></code>: str, default <cite>ols</cite></dt><dd><p>A string specifying the reconciliation method. For a complete list, 
+<dt><code class="docutils literal notranslate"><span class="pre">comb</span></code>: str, default <cite>ols</cite></dt><dd><p>A string specifying the reconciliation method. For a complete list,
 see <a class="reference internal" href="doc_cov.html#forecopy.cov.cscov" title="forecopy.cov.cscov"><code class="xref py py-func docutils literal notranslate"><span class="pre">cscov()</span></code></a></p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">res</span></code>: ndarray</dt><dd><p>An <span class="math notranslate nohighlight">\((N \times n)\)</span> optional numeric matrix containing the 
+<dt><code class="docutils literal notranslate"><span class="pre">res</span></code>: ndarray</dt><dd><p>An <span class="math notranslate nohighlight">\((N \times n)\)</span> optional numeric matrix containing the
 residuals. This matrix is used to compute some covariance matrices.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">cov_mat</span></code>: jnp.ndarray</dt><dd><p>An <span class="math notranslate nohighlight">\((n \times n)\)</span> covariance matrix (alternative to <code class="docutils literal notranslate"><span class="pre">comb</span></code>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">approach</span></code>: str, default <cite>proj</cite></dt><dd><p>A string specifying the approach used to compute the reconciled forecasts. 
+<dt><code class="docutils literal notranslate"><span class="pre">approach</span></code>: str, default <cite>proj</cite></dt><dd><p>A string specifying the approach used to compute the reconciled forecasts.
 Options include:</p>
 <ul class="simple">
 <li><p><cite>proj</cite>: Projection approach according to Byron (1978, 1979).</p></li>
 <li><p><cite>strc</cite>: Structural approach as proposed by Hyndman et al. (2011).</p></li>
-<li><p><cite>proj_tol</cite>, <cite>strc_tol</cite>: implementation using the sparse matrix approach. 
+<li><p><cite>proj_tol</cite>, <cite>strc_tol</cite>: implementation using the sparse matrix approach.
 These methods cannot ensure identical results to the non-sparse version.</p></li>
 </ul>
 </dd>
@@ -187,8 +187,11 @@ These methods cannot ensure identical results to the non-sparse version.</p></li
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">tol</span></code>: float</dt><dd><p>Tolerance value for some linear solvers.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">nn</span></code>: bool</dt><dd><p>If <cite>True</cite>, enforces non-negativity on reconciled forecasts using 
-the heuristic “set-negative-to-zero” (Di Fonzo and Girolimetto, 2023). 
+<dt><code class="docutils literal notranslate"><span class="pre">immutable</span></code>: jnp.array | None</dt><dd><p>Column indices of the base forecasts (the <code class="docutils literal notranslate"><span class="pre">base</span></code> parameter) to keep fixed.
+This option is only available when <code class="docutils literal notranslate"><span class="pre">approach</span></code> is set to <cite>proj</cite>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">nn</span></code>: bool</dt><dd><p>If <cite>True</cite>, enforces non-negativity on reconciled forecasts using
+the heuristic “set-negative-to-zero” (Di Fonzo and Girolimetto, 2023).
 Default is <cite>False</cite>.</p>
 </dd>
 </dl>
@@ -196,36 +199,36 @@ Default is <cite>False</cite>.</p>
 </section>
 <section id="returns">
 <h2>Returns<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#returns" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#returns'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>A <span class="math notranslate nohighlight">\((h \times n)\)</span> numeric matrix of cross-sectional reconciled 
+<p>A <span class="math notranslate nohighlight">\((h \times n)\)</span> numeric matrix of cross-sectional reconciled
 forecasts.</p>
 </section>
 <section id="references">
 <h2>References<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#references" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#references'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <ul class="simple">
-<li><p>Byron, R.P. (1978), The estimation of large social account matrices, 
-<cite>Journal of the Royal Statistical Society, Series A</cite>, 141, 3, 359-367. 
+<li><p>Byron, R.P. (1978), The estimation of large social account matrices,
+<cite>Journal of the Royal Statistical Society, Series A</cite>, 141, 3, 359-367.
 <a class="reference external" href="https://doi.org/10.2307/2344807" rel="nofollow noopener">DOI:10.2307/2344807<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Byron, R.P. (1979), Corrigenda: The estimation of large social account 
-matrices, <cite>Journal of the Royal Statistical Society, Series A</cite>, 142(3), 
+<li><p>Byron, R.P. (1979), Corrigenda: The estimation of large social account
+matrices, <cite>Journal of the Royal Statistical Society, Series A</cite>, 142(3),
 405. <a class="reference external" href="https://doi.org/10.2307/2982515" rel="nofollow noopener">DOI:10.2307/2982515<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation 
+<li><p>Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation
 of solar forecasts, <cite>Solar Energy</cite>, 251, 13-29.
 <a class="reference external" href="https://doi.org/10.1016/j.solener.2023.01.003" rel="nofollow noopener">DOI:10.1016/j.solener.2023.01.003<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast 
+<li><p>Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast
 reconciliation for general linearly constrained multiple time series,
-<cite>Statistical Methods &amp; Applications</cite>, 33, 581-607. 
+<cite>Statistical Methods &amp; Applications</cite>, 33, 581-607.
 <a class="reference external" href="https://doi.org/10.1007/s10260-023-00738-6" rel="nofollow noopener">DOI:10.1007/s10260-023-00738-6<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 <li><p>Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),
 Optimal combination forecasts for hierarchical time series,
 <cite>Computational Statistics &amp; Data Analysis</cite>, 55, 9, 2579-2589.
 <a class="reference external" href="https://doi.org/10.1016/j.csda.2011.03.006" rel="nofollow noopener">DOI:10.1016/j.csda.2011.03.006<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J. 
-(2021), Forecast reconciliation: A geometric view with new insights on 
+<li><p>Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J.
+(2021), Forecast reconciliation: A geometric view with new insights on
 bias correction, <cite>International Journal of Forecasting</cite>, 37, 1, 343-359.
 <a class="reference external" href="https://doi.org/10.1016/j.ijforecast.2020.06.004" rel="nofollow noopener">DOI:10.1016/j.ijforecast.2020.06.004<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019), 
-Optimal forecast reconciliation for hierarchical and grouped time series 
-through trace minimization, <cite>Journal of the American Statistical 
+<li><p>Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019),
+Optimal forecast reconciliation for hierarchical and grouped time series
+through trace minimization, <cite>Journal of the American Statistical
 Association</cite>, 114, 526, 804-819.
 <a class="reference external" href="https://doi.org/10.1080/01621459.2018.1448825" rel="nofollow noopener">DOI:10.1080/01621459.2018.1448825<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 </ul>
@@ -238,40 +241,40 @@ Association</cite>, 114, 526, 804-819.
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="forecopy.lsrec.terec">
-<span class="sig-name descname"><span class="pre">terec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="doc_tools.html#forecopy.tools.tetools" title="forecopy.tools.tetools"><span class="pre">tetools</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ols'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tew</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'proj'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/lsrec.html#terec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.lsrec.terec" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.lsrec.terec'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
+<span class="sig-name descname"><span class="pre">terec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="doc_tools.html#forecopy.tools.tetools" title="forecopy.tools.tetools"><span class="pre">tetools</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ols'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tew</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'proj'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">immutable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Array</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/forecopy/lsrec.html#terec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#forecopy.lsrec.terec" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#forecopy.lsrec.terec'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></dt>
 <dd><section id="optimal-combination-temporal-reconciliation">
 <h2>Optimal combination temporal reconciliation<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#optimal-combination-temporal-reconciliation" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#optimal-combination-temporal-reconciliation'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <p>This function performs forecast reconciliation for a single time
-series using temporal hierarchies (Athanasopoulos et al., 2017). 
-The reconciled forecasts can be computed using either a projection 
-approach (Byron, 1978, 1979) or the equivalent structural 
+series using temporal hierarchies (Athanasopoulos et al., 2017).
+The reconciled forecasts can be computed using either a projection
+approach (Byron, 1978, 1979) or the equivalent structural
 approach by Hyndman et al. (2011).</p>
 </section>
 <section id="id1">
 <h2>Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id1" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id1'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<dl class="simple">
+<dl>
 <dt><code class="docutils literal notranslate"><span class="pre">base</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\([N(k^\ast + m) \times 1]\)</span> numeric vector containing the
-base forecasts to be reconciled, ordered from lowest to highest 
-frequency; <span class="math notranslate nohighlight">\(m\)</span> is the maximum aggregation order, <span class="math notranslate nohighlight">\(k^\ast\)</span> 
-is the sum of a chosen subset of the <span class="math notranslate nohighlight">\(p - 1\)</span> factors of <span class="math notranslate nohighlight">\(m\)</span> 
-(excluding <span class="math notranslate nohighlight">\(m\)</span> itself) and <span class="math notranslate nohighlight">\(h\)</span> is the forecast horizon for 
+base forecasts to be reconciled, ordered from lowest to highest
+frequency; <span class="math notranslate nohighlight">\(m\)</span> is the maximum aggregation order, <span class="math notranslate nohighlight">\(k^\ast\)</span>
+is the sum of a chosen subset of the <span class="math notranslate nohighlight">\(p - 1\)</span> factors of <span class="math notranslate nohighlight">\(m\)</span>
+(excluding <span class="math notranslate nohighlight">\(m\)</span> itself) and <span class="math notranslate nohighlight">\(h\)</span> is the forecast horizon for
 the lowest frequency time series.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">agg_order</span></code>: list</dt><dd><p>Highest available sampling frequency per seasonal cycle (max. order 
+<dt><code class="docutils literal notranslate"><span class="pre">agg_order</span></code>: list</dt><dd><p>Highest available sampling frequency per seasonal cycle (max. order
 of temporal aggregation, <span class="math notranslate nohighlight">\(m\)</span>), or a list representing a
 subset of <span class="math notranslate nohighlight">\(p\)</span> factors of <span class="math notranslate nohighlight">\(m\)</span>.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">params</span></code>: tetools</dt><dd><p>A <a class="reference internal" href="doc_tools.html#forecopy.tools.tetools" title="forecopy.tools.tetools"><code class="xref py py-class docutils literal notranslate"><span class="pre">tetools</span></code></a> object (alternative 
+<dt><code class="docutils literal notranslate"><span class="pre">params</span></code>: tetools</dt><dd><p>A <a class="reference internal" href="doc_tools.html#forecopy.tools.tetools" title="forecopy.tools.tetools"><code class="xref py py-class docutils literal notranslate"><span class="pre">tetools</span></code></a> object (alternative
 to <code class="docutils literal notranslate"><span class="pre">agg_order</span></code>).</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">comb</span></code>: str, default <cite>ols</cite></dt><dd><p>A string specifying the reconciliation method. For a complete list, see 
+<dt><code class="docutils literal notranslate"><span class="pre">comb</span></code>: str, default <cite>ols</cite></dt><dd><p>A string specifying the reconciliation method. For a complete list, see
 <a class="reference internal" href="doc_cov.html#forecopy.cov.tecov" title="forecopy.cov.tecov"><code class="xref py py-func docutils literal notranslate"><span class="pre">tecov()</span></code></a></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">res</span></code>: ndarray</dt><dd><p>A <span class="math notranslate nohighlight">\([N(k^\ast+m) \times 1]\)</span> optional numeric vector containing
 the residuals ordered from the lowest frequency to the highest
 frequency. This vector is used to compute some covariance matrices.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">cov_mat</span></code>: jnp.ndarray</dt><dd><p>An <span class="math notranslate nohighlight">\([(k^\ast+m) \times (k^\ast+m)]\)</span> covariance matrix 
+<dt><code class="docutils literal notranslate"><span class="pre">cov_mat</span></code>: jnp.ndarray</dt><dd><p>An <span class="math notranslate nohighlight">\([(k^\ast+m) \times (k^\ast+m)]\)</span> covariance matrix
 (alternative to <code class="docutils literal notranslate"><span class="pre">comb</span></code>).</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">tew</span></code>: str, default <cite>sum</cite></dt><dd><p>Temporal aggregation weighting scheme applied within each high-to-low
@@ -283,12 +286,12 @@ block when building the aggregation matrix:</p>
 <li><p><cite>first</cite>: take the first element in the block.</p></li>
 </ul>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">approach</span></code>: str, default <cite>proj</cite></dt><dd><p>A string specifying the approach used to compute the reconciled forecasts. 
+<dt><code class="docutils literal notranslate"><span class="pre">approach</span></code>: str, default <cite>proj</cite></dt><dd><p>A string specifying the approach used to compute the reconciled forecasts.
 Options include:</p>
 <ul class="simple">
 <li><p><cite>proj</cite>: Projection approach according to Byron (1978, 1979).</p></li>
 <li><p><cite>strc</cite>: Structural approach as proposed by Hyndman et al. (2011).</p></li>
-<li><p><cite>proj_tol</cite>, <cite>strc_tol</cite>: implementation using the sparse matrix approach. 
+<li><p><cite>proj_tol</cite>, <cite>strc_tol</cite>: implementation using the sparse matrix approach.
 These methods cannot ensure identical results to the non-sparse version.</p></li>
 </ul>
 </dd>
@@ -296,32 +299,44 @@ These methods cannot ensure identical results to the non-sparse version.</p></li
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">tol</span></code>: float</dt><dd><p>Tolerance value for some linear solvers.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">nn</span></code>: bool</dt><dd><p>If <cite>True</cite>, enforces non-negativity on reconciled forecasts using 
-the heuristic “set-negative-to-zero” (Di Fonzo and Girolimetto, 2023). 
+<dt><code class="docutils literal notranslate"><span class="pre">nn</span></code>: bool</dt><dd><p>If <cite>True</cite>, enforces non-negativity on reconciled forecasts using
+the heuristic “set-negative-to-zero” (Di Fonzo and Girolimetto, 2023).
 Default is <cite>False</cite>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">immutable</span></code>: jnp.ndarray | None</dt><dd><p>Matrix where each row is a pair <span class="math notranslate nohighlight">\([k, j]\)</span>:</p>
+<ul class="simple">
+<li><p><cite>k</cite>: temporal aggregation order (<span class="math notranslate nohighlight">\(k = m, ..., 1\)</span>).</p></li>
+<li><p><cite>j</cite>: temporal forecast horizon (<span class="math notranslate nohighlight">\(j = 1, ..., m / k\)</span>).</p></li>
+</ul>
+<p>Examples (quarterly series, <span class="math notranslate nohighlight">\(m = 4\)</span>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">np.array([[4,</span> <span class="pre">1]])</span></code> — fix the one-step-ahead annual forecast.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">np.array([[1,</span> <span class="pre">2]])</span></code> — fix the two-step-ahead quarterly forecast.</p></li>
+</ul>
+<p>This option is only available when <code class="docutils literal notranslate"><span class="pre">approach</span></code> is set to <cite>proj</cite>.</p>
 </dd>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>: Arguments passed on to <a class="reference internal" href="doc_cov.html#forecopy.cov.tecov" title="forecopy.cov.tecov"><code class="xref py py-func docutils literal notranslate"><span class="pre">tecov()</span></code></a>.</p>
 </section>
 <section id="id2">
 <h2>Returns<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id2" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id2'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>A <span class="math notranslate nohighlight">\([h(k^\ast+m) \times 1]\)</span> numeric vector of temporal reconciled 
+<p>A <span class="math notranslate nohighlight">\([h(k^\ast+m) \times 1]\)</span> numeric vector of temporal reconciled
 forecasts.</p>
 </section>
 <section id="id3">
 <h2>References<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id3" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#id3'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <ul class="simple">
-<li><p>Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F. 
-(2017), Forecasting with Temporal Hierarchies, <cite>European Journal of 
-Operational Research</cite>, 262, 1, 60-74. 
+<li><p>Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F.
+(2017), Forecasting with Temporal Hierarchies, <cite>European Journal of
+Operational Research</cite>, 262, 1, 60-74.
 <a class="reference external" href="https://doi.org/10.1016/j.ejor.2017.02.046" rel="nofollow noopener">DOI:10.1016/j.ejor.2017.02.046<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Byron, R.P. (1978), The estimation of large social account matrices, 
-<cite>Journal of the Royal Statistical Society, Series A</cite>, 141, 3, 359-367. 
+<li><p>Byron, R.P. (1978), The estimation of large social account matrices,
+<cite>Journal of the Royal Statistical Society, Series A</cite>, 141, 3, 359-367.
 <a class="reference external" href="https://doi.org/10.2307/2344807" rel="nofollow noopener">DOI:10.2307/2344807<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 <li><p>Byron, R.P. (1979), Corrigenda: The estimation of large social account matrices,
 <cite>Journal of the Royal Statistical Society, Series A</cite>, 142(3), 405.
 <a class="reference external" href="https://doi.org/10.2307/2982515" rel="nofollow noopener">DOI:10.2307/2982515<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
-<li><p>Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation 
+<li><p>Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation
 of solar forecasts, <cite>Solar Energy</cite>, 251, 13-29.
 <a class="reference external" href="https://doi.org/10.1016/j.solener.2023.01.003" rel="nofollow noopener">DOI:10.1016/j.solener.2023.01.003<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 <li><p>Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),
@@ -350,15 +365,20 @@ Optimal combination forecasts for hierarchical time series,
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© %YYYY, Daniele Girolimetto Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 7.3.7</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025YYY, Daniele Girolimetto Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.2.3</a></p>
 </div>
 </div>
 </footer>
-</div>
-<script src="_static/documentation_options.js?v=01f34227"></script>
-<script src="_static/doctools.js?v=9a2dae69"></script>
+</div><button :class="{'opacity-0 invisible' : !showScrollTop}" @click="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 p-2 z-10 rounded-sm bg-gray-700 text-xs text-white transition-all duration-1000 hover:bg-gray-950 focus:bg-gray-950" id="scrolltop" x-cloak="">
+<svg aria-hidden="true" class="inline fill-current mb-[2px]" height="14" viewbox="0 96 960 960" width="14" xmlns="http://www.w3.org/2000/svg">
+<path d="M450 896V370L202 618l-42-42 320-320 320 320-42 42-248-248v526h-60Z"></path>
+</svg>
+  Back to top
+</button>
+<script src="_static/documentation_options.js?v=1e4afec3"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-<script defer="defer" src="_static/theme.js?v=e82a16a3"></script>
+<script defer="defer" src="_static/theme.js?v=073f68d9"></script>
 <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
