@@ -1,10 +1,10 @@
 Changelog
-==================================
+=========
 
-FoRecoPy (development version)
-------------------------------
+FoRecoPy 0.1.1 (2025-10-13)
+---------------------------
 
-* Add immutable forecast reconciliation
+* Add immutable cross-sectional and temporal forecast reconciliation
 * Fix bug in temporal forecast reconciliation
 * Improve documentation and examples
 

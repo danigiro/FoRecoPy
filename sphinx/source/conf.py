@@ -11,14 +11,14 @@ from sphinxawesome_theme import ThemeOptions
 from forecopy import __version__
 from dataclasses import asdict
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'FoRecoPy'
-copyright = '%YYYY, Daniele Girolimetto'
-author = 'Daniele Girolimetto'
+project = "FoRecoPy"
+copyright = "%Y, Daniele Girolimetto."
+author = "D. Girolimetto, B. Zhang"
 version = __version__
 release = __version__
 
@@ -27,32 +27,30 @@ release = __version__
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.todo',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax'
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.mathjax",
 ]
 
-templates_path = ['_templates']
-exclude_patterns = ['build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_title = project
-html_theme = 'sphinxawesome_theme'
-html_static_path = ['_static']
+html_theme = "sphinxawesome_theme"
+html_static_path = ["_static"]
 html_permalinks_icon = Icons.permalinks_icon
 add_module_names = False
-master_doc = 'index'
-html_favicon="forecopy.svg"
+master_doc = "index"
+html_favicon = "forecopy.svg"
 
-html_context = {
-   "default_mode": "light"
-}
+html_context = {"default_mode": "light"}
 
 html_css_files = [
-    'css/custom.css',
+    "css/custom.css",
 ]
 
 theme_options = ThemeOptions(
@@ -98,7 +96,7 @@ html_theme_options = asdict(theme_options)
 sitemap_url_scheme = "{link}"
 
 latex_elements = {
-'preamble': r'''
+    "preamble": r"""
 
 \renewcommand{\thesection}{}
 \renewcommand{\thesubsection}{}
@@ -107,6 +105,7 @@ latex_elements = {
 \let\sectionignore\@gobbletwo
 \let\latex@numberline\numberline
 \def\numberline#1{\if\relax#1\relax\else\latex@numberline{#1}\fi}
-''',
-'classoptions': 'openany',
-'babel': r'\usepackage[english]{babel}',}
+""",
+    "classoptions": "openany",
+    "babel": r"\usepackage[english]{babel}",
+}
