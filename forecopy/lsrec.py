@@ -5,11 +5,11 @@ frameworks.
 
 Two main reconciliation functions are included:
 
-- :func:`csres() <forecopy.lsrec.csrec>`:
+- :func:`csrec() <forecopy.lsrec.csrec>`: 
   For hierarchically, grouped, or otherwise linearly constrained series
   observed at the same frequency.
 
-- :func:`teres() <forecopy.lsrec.terec>`:
+- :func:`terec() <forecopy.lsrec.terec>`: 
   For temporal hierarchies, where the same time series can be aggregated or
   linearly combined at multiple frequencies (e.g., monthly, quarterly,
   yearly).
@@ -35,7 +35,7 @@ def csrec(
     solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    immutable: jnp.array = None,
+    immutable: Optional[jnp.array] = None,
     **kwargs,
 ):
     """
@@ -179,16 +179,16 @@ def csrec(
 
 def terec(
     base: jnp.ndarray,
-    agg_order: list = None,
+    agg_order: list | int = 1,
     comb: str = "ols",
-    res: jnp.ndarray = None,
-    cov_mat: jnp.ndarray = None,
+    res: Optional[jnp.ndarray] = None,
+    cov_mat: Optional[jnp.ndarray] = None,
     tew: str = "sum",
     approach: str = "proj",
     solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    immutable: jnp.ndarray = None,
+    immutable: Optional[jnp.ndarray] = None,
     **kwargs,
 ):
     """
@@ -211,8 +211,8 @@ def terec(
         (excluding :math:`m` itself) and :math:`h` is the forecast horizon for
         the lowest frequency time series.
 
-    ``agg_order``: list
-        Highest available sampling frequency per seasonal cycle (max. order
+    ``agg_order``: list | int
+        Highest available sampling frequency per seasonal cycle (max. order 
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
 

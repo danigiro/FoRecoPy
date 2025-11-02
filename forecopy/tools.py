@@ -273,9 +273,9 @@ class tetools:
     ( (12/6)*2 + (12/3)*2 + (12/1)*2, 12 )
     """
 
-    def __init__(self, agg_order: list | int, tew: str = "sum", fh: int = 1):
+    def __init__(self, agg_order: list[int] | int, tew: str = "sum", fh: int = 1):
 
-        self.m = np.max(agg_order)
+        self.m = int(max(agg_order)) if isinstance(agg_order, list) else agg_order
         kset_full = factors(self.m)
         if isinstance(agg_order, int):
             kset = kset_full
