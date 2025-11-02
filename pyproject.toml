@@ -1,8 +1,11 @@
 [project]
 name = "forecopy"
-version = "0.1.0"
+version = "0.1.1"
 description = "Forecast Reconciliation in Python"
-authors = [{name = "Daniele Girolimetto"}]
+authors = [
+     {name = "Daniele Girolimetto", email = "daniele.girolimetto@unipd.it"},
+     {name = "Bohan Zhang"},
+]
 maintainers = [
     {name = "Daniele Girolimetto", email="daniele.girolimetto@unipd.it"},
 ]

@@ -15,8 +15,8 @@
     <title>forecopy.lsrec | FoRecoPy</title>
     <meta property="og:title" content="forecopy.lsrec | FoRecoPy" />
     <meta name="twitter:title" content="forecopy.lsrec | FoRecoPy" />
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=ef1dd98d" />
-      <link rel="stylesheet" type="text/css" href="../../_static/theme.css?v=ecdfb4fc" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=e72c8e07" />
+      <link rel="stylesheet" type="text/css" href="../../_static/theme.css?v=42baaae4" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=cd7c67d7" />
       <link rel="icon" href="../../_static/forecopy.svg" />
         <link rel="search" title="Search" href="../../search.html" />
@@ -35,7 +35,7 @@
       if (!userPreference) {localStorage.setItem('darkMode', mode)}
     </script>
 </head>
-<body x-data="{ showSidebar: false }" class="min-h-screen font-sans antialiased bg-background text-foreground" :class="{ 'overflow-hidden': showSidebar }">
+  <body x-data="{ showSidebar: false, showScrollTop: false }" class="min-h-screen font-sans antialiased bg-background text-foreground" :class="{ 'overflow-hidden': showSidebar }"@scroll.window="showScrollTop = pageYOffset > 100">
     <div x-cloak x-show="showSidebar" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" @click.self="showSidebar = false"></div><div id="page" class="relative flex flex-col min-h-screen"><a href="#content" class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100">
       Skip to content
     </a><header
@@ -179,348 +179,385 @@
 </span><span id="line-5">
 </span><span id="line-6"><span class="sd">Two main reconciliation functions are included:</span>
 </span><span id="line-7">
-</span><span id="line-8"><span class="sd">- :func:`csres() &lt;forecopy.lsrec.csrec&gt;`: </span>
+</span><span id="line-8"><span class="sd">- :func:`csres() &lt;forecopy.lsrec.csrec&gt;`:</span>
 </span><span id="line-9"><span class="sd">  For hierarchically, grouped, or otherwise linearly constrained series</span>
 </span><span id="line-10"><span class="sd">  observed at the same frequency.</span>
 </span><span id="line-11">
-</span><span id="line-12"><span class="sd">- :func:`teres() &lt;forecopy.lsrec.terec&gt;`: </span>
+</span><span id="line-12"><span class="sd">- :func:`teres() &lt;forecopy.lsrec.terec&gt;`:</span>
 </span><span id="line-13"><span class="sd">  For temporal hierarchies, where the same time series can be aggregated or</span>
 </span><span id="line-14"><span class="sd">  linearly combined at multiple frequencies (e.g., monthly, quarterly,</span>
 </span><span id="line-15"><span class="sd">  yearly).</span>
 </span><span id="line-16"><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="line-17"><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
-</span><span id="line-18">
-</span><span id="line-19"><span class="c1"># From forecopy</span>
-</span><span id="line-20"><span class="kn">from</span> <span class="nn">forecopy.tools</span> <span class="kn">import</span> <span class="n">cstools</span><span class="p">,</span> <span class="n">tetools</span>
-</span><span id="line-21"><span class="kn">from</span> <span class="nn">forecopy.cov</span> <span class="kn">import</span> <span class="n">cscov</span><span class="p">,</span> <span class="n">tecov</span>
-</span><span id="line-22"><span class="kn">from</span> <span class="nn">forecopy.reco</span> <span class="kn">import</span> <span class="n">_reconcile</span>
-</span><span id="line-23"><span class="kn">from</span> <span class="nn">forecopy.fun</span> <span class="kn">import</span> <span class="n">vec2hmat</span><span class="p">,</span> <span class="n">hmat2vec</span>
-</span><span id="line-24">
+</span><span id="line-17">
+</span><span id="line-18"><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+</span><span id="line-19">
+</span><span id="line-20"><span class="c1"># From forecopy</span>
+</span><span id="line-21"><span class="kn">from</span><span class="w"> </span><span class="nn">forecopy.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cstools</span><span class="p">,</span> <span class="n">tetools</span>
+</span><span id="line-22"><span class="kn">from</span><span class="w"> </span><span class="nn">forecopy.cov</span><span class="w"> </span><span class="kn">import</span> <span class="n">cscov</span><span class="p">,</span> <span class="n">tecov</span>
+</span><span id="line-23"><span class="kn">from</span><span class="w"> </span><span class="nn">forecopy.reco</span><span class="w"> </span><span class="kn">import</span> <span class="n">_reconcile</span>
+</span><span id="line-24"><span class="kn">from</span><span class="w"> </span><span class="nn">forecopy.fun</span><span class="w"> </span><span class="kn">import</span> <span class="n">vec2hmat</span><span class="p">,</span> <span class="n">hmat2vec</span>
+</span><span id="line-25">
+</span><span id="line-26">
 <div class="viewcode-block" id="csrec">
 <a class="viewcode-back" href="../../doc_lsrec.html#forecopy.lsrec.csrec">[docs]</a>
-</span><span id="line-25"><span class="k">def</span> <span class="nf">csrec</span><span class="p">(</span>
-</span><span id="line-26">    <span class="n">base</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="line-27">    <span class="n">agg_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-28">    <span class="n">cons_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-29">    <span class="n">params</span><span class="p">:</span> <span class="n">cstools</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-30">    <span class="n">comb</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ols&#39;</span><span class="p">,</span>
-</span><span id="line-31">    <span class="n">res</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-32">    <span class="n">cov_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-33">    <span class="n">approach</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;proj&#39;</span><span class="p">,</span>
-</span><span id="line-34">    <span class="n">solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
-</span><span id="line-35">    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
-</span><span id="line-36">    <span class="n">nn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="line-37">    <span class="o">**</span><span class="n">kwargs</span>
-</span><span id="line-38"><span class="p">):</span>
-</span><span id="line-39"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="line-40"><span class="sd">    Optimal combination cross-sectional reconciliation</span>
-</span><span id="line-41"><span class="sd">    --------------------------------------------------</span>
-</span><span id="line-42"><span class="sd">    </span>
-</span><span id="line-43"><span class="sd">    This function performs optimal (in least squares sense) combination </span>
-</span><span id="line-44"><span class="sd">    cross-sectional forecast reconciliation for a linearly constrained </span>
-</span><span id="line-45"><span class="sd">    (e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al., </span>
-</span><span id="line-46"><span class="sd">    2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The </span>
-</span><span id="line-47"><span class="sd">    reconciled forecasts are calculated using either a projection approach </span>
-</span><span id="line-48"><span class="sd">    (Byron, 1978, 1979) or the equivalent structural approach by Hyndman et </span>
-</span><span id="line-49"><span class="sd">    al. (2011).</span>
-</span><span id="line-50">
-</span><span id="line-51"><span class="sd">    Parameters</span>
-</span><span id="line-52"><span class="sd">    ----------</span>
+</span><span id="line-27"><span class="k">def</span><span class="w"> </span><span class="nf">csrec</span><span class="p">(</span>
+</span><span id="line-28">    <span class="n">base</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="line-29">    <span class="n">agg_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-30">    <span class="n">cons_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-31">    <span class="n">params</span><span class="p">:</span> <span class="n">cstools</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-32">    <span class="n">comb</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ols&quot;</span><span class="p">,</span>
+</span><span id="line-33">    <span class="n">res</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-34">    <span class="n">cov_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-35">    <span class="n">approach</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;proj&quot;</span><span class="p">,</span>
+</span><span id="line-36">    <span class="n">solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+</span><span id="line-37">    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+</span><span id="line-38">    <span class="n">nn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="line-39">    <span class="n">immutable</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-40">    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="line-41"><span class="p">):</span>
+</span><span id="line-42"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="line-43"><span class="sd">    Optimal combination cross-sectional reconciliation</span>
+</span><span id="line-44"><span class="sd">    --------------------------------------------------</span>
+</span><span id="line-45">
+</span><span id="line-46"><span class="sd">    This function performs optimal (in least squares sense) combination</span>
+</span><span id="line-47"><span class="sd">    cross-sectional forecast reconciliation for a linearly constrained</span>
+</span><span id="line-48"><span class="sd">    (e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al.,</span>
+</span><span id="line-49"><span class="sd">    2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The</span>
+</span><span id="line-50"><span class="sd">    reconciled forecasts are calculated using either a projection approach</span>
+</span><span id="line-51"><span class="sd">    (Byron, 1978, 1979) or the equivalent structural approach by Hyndman et</span>
+</span><span id="line-52"><span class="sd">    al. (2011).</span>
 </span><span id="line-53">
-</span><span id="line-54"><span class="sd">    ``base``: ndarray</span>
-</span><span id="line-55"><span class="sd">        A :math:`(h \\times n)` numeric matrix containing the base forecasts </span>
-</span><span id="line-56"><span class="sd">        to be reconciled; :math:`h` is the forecast horizon, and :math:`n` </span>
-</span><span id="line-57"><span class="sd">        is the total number of time series (:math:`n = n_a + n_b`).</span>
-</span><span id="line-58">
-</span><span id="line-59"><span class="sd">    ``agg_mat``: ndarray</span>
-</span><span id="line-60"><span class="sd">        A :math:`(n_a \\times n_b)` numeric matrix representing the </span>
-</span><span id="line-61"><span class="sd">        cross-sectional aggregation matrix (alternative to ``cons_mat`` and </span>
-</span><span id="line-62"><span class="sd">        ``params``). It maps the :math:`n_b` bottom-level (free) variables </span>
-</span><span id="line-63"><span class="sd">        into the :math:`n_a` upper (constrained) variables.</span>
-</span><span id="line-64">
-</span><span id="line-65"><span class="sd">    ``cons_mat``: ndarray</span>
-</span><span id="line-66"><span class="sd">        A :math:`(n_a \\times n)` numeric matrix representing the </span>
-</span><span id="line-67"><span class="sd">        cross-sectional zero constraints (alternative to ``agg_mat`` </span>
-</span><span id="line-68"><span class="sd">        and ``params``).</span>
-</span><span id="line-69">
-</span><span id="line-70"><span class="sd">    ``params``: cstools</span>
-</span><span id="line-71"><span class="sd">         A :class:`cstools &lt;forecopy.tools.cstools&gt;` object (alternative to </span>
-</span><span id="line-72"><span class="sd">         ``agg_mat`` and ``cons_mat``). </span>
-</span><span id="line-73">
-</span><span id="line-74"><span class="sd">    ``comb``: str, default `ols`</span>
-</span><span id="line-75"><span class="sd">        A string specifying the reconciliation method. For a complete list, </span>
-</span><span id="line-76"><span class="sd">        see :func:`cscov() &lt;forecopy.cov.cscov&gt;`</span>
-</span><span id="line-77">
-</span><span id="line-78"><span class="sd">    ``res``: ndarray</span>
-</span><span id="line-79"><span class="sd">        An :math:`(N \\times n)` optional numeric matrix containing the </span>
-</span><span id="line-80"><span class="sd">        residuals. This matrix is used to compute some covariance matrices.</span>
-</span><span id="line-81">
-</span><span id="line-82"><span class="sd">    ``cov_mat``: jnp.ndarray</span>
-</span><span id="line-83"><span class="sd">        An :math:`(n \\times n)` covariance matrix (alternative to ``comb``).</span>
+</span><span id="line-54"><span class="sd">    Parameters</span>
+</span><span id="line-55"><span class="sd">    ----------</span>
+</span><span id="line-56">
+</span><span id="line-57"><span class="sd">    ``base``: ndarray</span>
+</span><span id="line-58"><span class="sd">        A :math:`(h \\times n)` numeric matrix containing the base forecasts</span>
+</span><span id="line-59"><span class="sd">        to be reconciled; :math:`h` is the forecast horizon, and :math:`n`</span>
+</span><span id="line-60"><span class="sd">        is the total number of time series (:math:`n = n_a + n_b`).</span>
+</span><span id="line-61">
+</span><span id="line-62"><span class="sd">    ``agg_mat``: ndarray</span>
+</span><span id="line-63"><span class="sd">        A :math:`(n_a \\times n_b)` numeric matrix representing the</span>
+</span><span id="line-64"><span class="sd">        cross-sectional aggregation matrix (alternative to ``cons_mat`` and</span>
+</span><span id="line-65"><span class="sd">        ``params``). It maps the :math:`n_b` bottom-level (free) variables</span>
+</span><span id="line-66"><span class="sd">        into the :math:`n_a` upper (constrained) variables.</span>
+</span><span id="line-67">
+</span><span id="line-68"><span class="sd">    ``cons_mat``: ndarray</span>
+</span><span id="line-69"><span class="sd">        A :math:`(n_a \\times n)` numeric matrix representing the</span>
+</span><span id="line-70"><span class="sd">        cross-sectional zero constraints (alternative to ``agg_mat``</span>
+</span><span id="line-71"><span class="sd">        and ``params``).</span>
+</span><span id="line-72">
+</span><span id="line-73"><span class="sd">    ``params``: cstools</span>
+</span><span id="line-74"><span class="sd">         A :class:`cstools &lt;forecopy.tools.cstools&gt;` object (alternative to</span>
+</span><span id="line-75"><span class="sd">         ``agg_mat`` and ``cons_mat``).</span>
+</span><span id="line-76">
+</span><span id="line-77"><span class="sd">    ``comb``: str, default `ols`</span>
+</span><span id="line-78"><span class="sd">        A string specifying the reconciliation method. For a complete list,</span>
+</span><span id="line-79"><span class="sd">        see :func:`cscov() &lt;forecopy.cov.cscov&gt;`</span>
+</span><span id="line-80">
+</span><span id="line-81"><span class="sd">    ``res``: ndarray</span>
+</span><span id="line-82"><span class="sd">        An :math:`(N \\times n)` optional numeric matrix containing the</span>
+</span><span id="line-83"><span class="sd">        residuals. This matrix is used to compute some covariance matrices.</span>
 </span><span id="line-84">
-</span><span id="line-85"><span class="sd">    ``approach``: str, default `proj`</span>
-</span><span id="line-86"><span class="sd">        A string specifying the approach used to compute the reconciled forecasts. </span>
-</span><span id="line-87"><span class="sd">        Options include: </span>
-</span><span id="line-88">
-</span><span id="line-89"><span class="sd">        * `proj`: Projection approach according to Byron (1978, 1979).</span>
-</span><span id="line-90"><span class="sd">        * `strc`: Structural approach as proposed by Hyndman et al. (2011). </span>
-</span><span id="line-91"><span class="sd">        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach. </span>
-</span><span id="line-92"><span class="sd">          These methods cannot ensure identical results to the non-sparse version.</span>
-</span><span id="line-93"><span class="sd">    </span>
-</span><span id="line-94"><span class="sd">    ``solver``: str, default `default`</span>
-</span><span id="line-95"><span class="sd">        Linear solvers: `default` and `linearx`.</span>
+</span><span id="line-85"><span class="sd">    ``cov_mat``: jnp.ndarray</span>
+</span><span id="line-86"><span class="sd">        An :math:`(n \\times n)` covariance matrix (alternative to ``comb``).</span>
+</span><span id="line-87">
+</span><span id="line-88"><span class="sd">    ``approach``: str, default `proj`</span>
+</span><span id="line-89"><span class="sd">        A string specifying the approach used to compute the reconciled forecasts.</span>
+</span><span id="line-90"><span class="sd">        Options include:</span>
+</span><span id="line-91">
+</span><span id="line-92"><span class="sd">        * `proj`: Projection approach according to Byron (1978, 1979).</span>
+</span><span id="line-93"><span class="sd">        * `strc`: Structural approach as proposed by Hyndman et al. (2011).</span>
+</span><span id="line-94"><span class="sd">        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach.</span>
+</span><span id="line-95"><span class="sd">          These methods cannot ensure identical results to the non-sparse version.</span>
 </span><span id="line-96">
-</span><span id="line-97"><span class="sd">    ``tol``: float</span>
-</span><span id="line-98"><span class="sd">        Tolerance value for some linear solvers.</span>
+</span><span id="line-97"><span class="sd">    ``solver``: str, default `default`</span>
+</span><span id="line-98"><span class="sd">        Linear solvers: `default` and `linearx`.</span>
 </span><span id="line-99">
-</span><span id="line-100"><span class="sd">    ``nn``: bool</span>
-</span><span id="line-101"><span class="sd">        If `True`, enforces non-negativity on reconciled forecasts using </span>
-</span><span id="line-102"><span class="sd">        the heuristic &quot;set-negative-to-zero&quot; (Di Fonzo and Girolimetto, 2023). </span>
-</span><span id="line-103"><span class="sd">        Default is `False`.</span>
-</span><span id="line-104">
-</span><span id="line-105"><span class="sd">    ``**kwargs``: Arguments passed on to :func:`cscov() &lt;forecopy.cov.cscov&gt;`.</span>
+</span><span id="line-100"><span class="sd">    ``tol``: float</span>
+</span><span id="line-101"><span class="sd">        Tolerance value for some linear solvers.</span>
+</span><span id="line-102">
+</span><span id="line-103"><span class="sd">    ``immutable``: jnp.array | None</span>
+</span><span id="line-104"><span class="sd">        Column indices of the base forecasts (the ``base`` parameter) to keep fixed.</span>
+</span><span id="line-105"><span class="sd">        This option is only available when ``approach`` is set to `proj`.</span>
 </span><span id="line-106">
-</span><span id="line-107"><span class="sd">    Returns</span>
-</span><span id="line-108"><span class="sd">    -------</span>
-</span><span id="line-109"><span class="sd">    A :math:`(h \\times n)` numeric matrix of cross-sectional reconciled </span>
-</span><span id="line-110"><span class="sd">    forecasts.</span>
+</span><span id="line-107"><span class="sd">    ``nn``: bool</span>
+</span><span id="line-108"><span class="sd">        If `True`, enforces non-negativity on reconciled forecasts using</span>
+</span><span id="line-109"><span class="sd">        the heuristic &quot;set-negative-to-zero&quot; (Di Fonzo and Girolimetto, 2023).</span>
+</span><span id="line-110"><span class="sd">        Default is `False`.</span>
 </span><span id="line-111">
-</span><span id="line-112"><span class="sd">    References</span>
-</span><span id="line-113"><span class="sd">    ----------</span>
-</span><span id="line-114"><span class="sd">    </span>
-</span><span id="line-115"><span class="sd">    * Byron, R.P. (1978), The estimation of large social account matrices, </span>
-</span><span id="line-116"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367. </span>
-</span><span id="line-117"><span class="sd">      `DOI:10.2307/2344807 &lt;https://doi.org/10.2307/2344807&gt;`_</span>
-</span><span id="line-118"><span class="sd">    * Byron, R.P. (1979), Corrigenda: The estimation of large social account </span>
-</span><span id="line-119"><span class="sd">      matrices, `Journal of the Royal Statistical Society, Series A`, 142(3), </span>
-</span><span id="line-120"><span class="sd">      405. `DOI:10.2307/2982515 &lt;https://doi.org/10.2307/2982515&gt;`_</span>
-</span><span id="line-121"><span class="sd">    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation </span>
-</span><span id="line-122"><span class="sd">      of solar forecasts, `Solar Energy`, 251, 13-29.</span>
-</span><span id="line-123"><span class="sd">      `DOI:10.1016/j.solener.2023.01.003 &lt;https://doi.org/10.1016/j.solener.2023.01.003&gt;`_</span>
-</span><span id="line-124"><span class="sd">    * Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast </span>
-</span><span id="line-125"><span class="sd">      reconciliation for general linearly constrained multiple time series,</span>
-</span><span id="line-126"><span class="sd">      `Statistical Methods &amp; Applications`, 33, 581-607. </span>
-</span><span id="line-127"><span class="sd">      `DOI:10.1007/s10260-023-00738-6 &lt;https://doi.org/10.1007/s10260-023-00738-6&gt;`_</span>
-</span><span id="line-128"><span class="sd">    * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),</span>
-</span><span id="line-129"><span class="sd">      Optimal combination forecasts for hierarchical time series,</span>
-</span><span id="line-130"><span class="sd">      `Computational Statistics &amp; Data Analysis`, 55, 9, 2579-2589.</span>
-</span><span id="line-131"><span class="sd">      `DOI:10.1016/j.csda.2011.03.006 &lt;https://doi.org/10.1016/j.csda.2011.03.006&gt;`_</span>
-</span><span id="line-132"><span class="sd">    * Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J. </span>
-</span><span id="line-133"><span class="sd">      (2021), Forecast reconciliation: A geometric view with new insights on </span>
-</span><span id="line-134"><span class="sd">      bias correction, `International Journal of Forecasting`, 37, 1, 343-359.</span>
-</span><span id="line-135"><span class="sd">      `DOI:10.1016/j.ijforecast.2020.06.004 &lt;https://doi.org/10.1016/j.ijforecast.2020.06.004&gt;`_</span>
-</span><span id="line-136"><span class="sd">    * Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019), </span>
-</span><span id="line-137"><span class="sd">      Optimal forecast reconciliation for hierarchical and grouped time series </span>
-</span><span id="line-138"><span class="sd">      through trace minimization, `Journal of the American Statistical </span>
-</span><span id="line-139"><span class="sd">      Association`, 114, 526, 804-819.</span>
-</span><span id="line-140"><span class="sd">      `DOI:10.1080/01621459.2018.1448825 &lt;https://doi.org/10.1080/01621459.2018.1448825&gt;`_</span>
-</span><span id="line-141">
-</span><span id="line-142"><span class="sd">    See Also</span>
-</span><span id="line-143"><span class="sd">    --------</span>
-</span><span id="line-144"><span class="sd">    :func:`cstools &lt;forecopy.tools.cstools&gt;`</span>
-</span><span id="line-145"><span class="sd">    :func:`cscov &lt;forecopy.cov.cscov&gt;`</span>
-</span><span id="line-146"><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="line-147">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="line-148">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
-</span><span id="line-149">
-</span><span id="line-150">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="line-151">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">T</span>
-</span><span id="line-152">
-</span><span id="line-153">    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-154">        <span class="n">params</span> <span class="o">=</span> <span class="n">cstools</span><span class="p">(</span><span class="n">agg_mat</span><span class="o">=</span><span class="n">agg_mat</span><span class="p">,</span> <span class="n">cons_mat</span><span class="o">=</span><span class="n">cons_mat</span><span class="p">)</span>
-</span><span id="line-155">    <span class="k">else</span><span class="p">:</span>
-</span><span id="line-156">        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">cstools</span><span class="p">:</span>
-</span><span id="line-157">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;params is not a &#39;cstools&#39; class&quot;</span><span class="p">)</span>
-</span><span id="line-158">    
-</span><span id="line-159">    <span class="n">id_nn</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="line-160">    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">agg_mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-161">        <span class="n">id_nn</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
-</span><span id="line-162">    
-</span><span id="line-163">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-</span><span id="line-164">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect base columns dimension.&quot;</span><span class="p">)</span>
+</span><span id="line-112"><span class="sd">    ``**kwargs``: Arguments passed on to :func:`cscov() &lt;forecopy.cov.cscov&gt;`.</span>
+</span><span id="line-113">
+</span><span id="line-114"><span class="sd">    Returns</span>
+</span><span id="line-115"><span class="sd">    -------</span>
+</span><span id="line-116"><span class="sd">    A :math:`(h \\times n)` numeric matrix of cross-sectional reconciled</span>
+</span><span id="line-117"><span class="sd">    forecasts.</span>
+</span><span id="line-118">
+</span><span id="line-119"><span class="sd">    References</span>
+</span><span id="line-120"><span class="sd">    ----------</span>
+</span><span id="line-121">
+</span><span id="line-122"><span class="sd">    * Byron, R.P. (1978), The estimation of large social account matrices,</span>
+</span><span id="line-123"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367.</span>
+</span><span id="line-124"><span class="sd">      `DOI:10.2307/2344807 &lt;https://doi.org/10.2307/2344807&gt;`_</span>
+</span><span id="line-125"><span class="sd">    * Byron, R.P. (1979), Corrigenda: The estimation of large social account</span>
+</span><span id="line-126"><span class="sd">      matrices, `Journal of the Royal Statistical Society, Series A`, 142(3),</span>
+</span><span id="line-127"><span class="sd">      405. `DOI:10.2307/2982515 &lt;https://doi.org/10.2307/2982515&gt;`_</span>
+</span><span id="line-128"><span class="sd">    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation</span>
+</span><span id="line-129"><span class="sd">      of solar forecasts, `Solar Energy`, 251, 13-29.</span>
+</span><span id="line-130"><span class="sd">      `DOI:10.1016/j.solener.2023.01.003 &lt;https://doi.org/10.1016/j.solener.2023.01.003&gt;`_</span>
+</span><span id="line-131"><span class="sd">    * Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast</span>
+</span><span id="line-132"><span class="sd">      reconciliation for general linearly constrained multiple time series,</span>
+</span><span id="line-133"><span class="sd">      `Statistical Methods &amp; Applications`, 33, 581-607.</span>
+</span><span id="line-134"><span class="sd">      `DOI:10.1007/s10260-023-00738-6 &lt;https://doi.org/10.1007/s10260-023-00738-6&gt;`_</span>
+</span><span id="line-135"><span class="sd">    * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),</span>
+</span><span id="line-136"><span class="sd">      Optimal combination forecasts for hierarchical time series,</span>
+</span><span id="line-137"><span class="sd">      `Computational Statistics &amp; Data Analysis`, 55, 9, 2579-2589.</span>
+</span><span id="line-138"><span class="sd">      `DOI:10.1016/j.csda.2011.03.006 &lt;https://doi.org/10.1016/j.csda.2011.03.006&gt;`_</span>
+</span><span id="line-139"><span class="sd">    * Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J.</span>
+</span><span id="line-140"><span class="sd">      (2021), Forecast reconciliation: A geometric view with new insights on</span>
+</span><span id="line-141"><span class="sd">      bias correction, `International Journal of Forecasting`, 37, 1, 343-359.</span>
+</span><span id="line-142"><span class="sd">      `DOI:10.1016/j.ijforecast.2020.06.004 &lt;https://doi.org/10.1016/j.ijforecast.2020.06.004&gt;`_</span>
+</span><span id="line-143"><span class="sd">    * Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019),</span>
+</span><span id="line-144"><span class="sd">      Optimal forecast reconciliation for hierarchical and grouped time series</span>
+</span><span id="line-145"><span class="sd">      through trace minimization, `Journal of the American Statistical</span>
+</span><span id="line-146"><span class="sd">      Association`, 114, 526, 804-819.</span>
+</span><span id="line-147"><span class="sd">      `DOI:10.1080/01621459.2018.1448825 &lt;https://doi.org/10.1080/01621459.2018.1448825&gt;`_</span>
+</span><span id="line-148">
+</span><span id="line-149"><span class="sd">    See Also</span>
+</span><span id="line-150"><span class="sd">    --------</span>
+</span><span id="line-151"><span class="sd">    :func:`cstools &lt;forecopy.tools.cstools&gt;`</span>
+</span><span id="line-152"><span class="sd">    :func:`cscov &lt;forecopy.cov.cscov&gt;`</span>
+</span><span id="line-153"><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="line-154">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="line-155">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="line-156">
+</span><span id="line-157">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="line-158">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">T</span>
+</span><span id="line-159">
+</span><span id="line-160">    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-161">        <span class="n">params</span> <span class="o">=</span> <span class="n">cstools</span><span class="p">(</span><span class="n">agg_mat</span><span class="o">=</span><span class="n">agg_mat</span><span class="p">,</span> <span class="n">cons_mat</span><span class="o">=</span><span class="n">cons_mat</span><span class="p">)</span>
+</span><span id="line-162">    <span class="k">else</span><span class="p">:</span>
+</span><span id="line-163">        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">cstools</span><span class="p">:</span>
+</span><span id="line-164">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;params is not a &#39;cstools&#39; class&quot;</span><span class="p">)</span>
 </span><span id="line-165">
-</span><span id="line-166">    <span class="n">cov_mat</span> <span class="o">=</span> <span class="n">cscov</span><span class="p">(</span>
-</span><span id="line-167">        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> 
-</span><span id="line-168">        <span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> 
-</span><span id="line-169">        <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span>
-</span><span id="line-170">        <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">comb</span><span class="o">=</span><span class="n">comb</span><span class="p">,</span> <span class="n">return_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="line-166">    <span class="n">id_nn</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="line-167">    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">agg_mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-168">        <span class="n">id_nn</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span>
+</span><span id="line-169">            <span class="kc">True</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</span><span id="line-170">        <span class="p">]</span>
 </span><span id="line-171">
-</span><span id="line-172">    <span class="k">if</span> <span class="n">cov_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-</span><span id="line-173">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect covariance dimensions. Check &#39;res&#39; columns dimension.&quot;</span><span class="p">)</span>
+</span><span id="line-172">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+</span><span id="line-173">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect base columns dimension.&quot;</span><span class="p">)</span>
 </span><span id="line-174">
-</span><span id="line-175">    <span class="n">reco</span> <span class="o">=</span> <span class="n">_reconcile</span><span class="p">(</span>
-</span><span id="line-176">        <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> 
-</span><span id="line-177">        <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">,</span> 
-</span><span id="line-178">        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
-</span><span id="line-179">        <span class="n">id_nn</span><span class="o">=</span><span class="n">id_nn</span>
-</span><span id="line-180">        <span class="p">)</span>
+</span><span id="line-175">    <span class="k">if</span> <span class="n">immutable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-176">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">immutable</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</span><span id="line-177">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">immutable</span><span class="p">)</span>
+</span><span id="line-178">
+</span><span id="line-179">        <span class="k">if</span> <span class="n">immutable</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+</span><span id="line-180">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;immutable size must be less or equal to </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-181">
-</span><span id="line-182">    <span class="n">rf</span> <span class="o">=</span> <span class="n">reco</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">approach</span><span class="o">=</span><span class="n">approach</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">)</span>
-</span><span id="line-183">    <span class="k">return</span> <span class="n">rf</span></div>
-
-</span><span id="line-184">
+</span><span id="line-182">        <span class="k">if</span> <span class="n">jnp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">immutable</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+</span><span id="line-183">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;max(immutable) must be less or equal to </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="line-184">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">immutable</span><span class="p">[</span><span class="n">immutable</span> <span class="o">&lt;</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
 </span><span id="line-185">
+</span><span id="line-186">    <span class="n">cov_mat</span> <span class="o">=</span> <span class="n">cscov</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+</span><span id="line-187">        <span class="n">comb</span><span class="o">=</span><span class="n">comb</span><span class="p">,</span> <span class="n">return_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="line-188">    <span class="p">)</span>
+</span><span id="line-189">
+</span><span id="line-190">    <span class="k">if</span> <span class="n">cov_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+</span><span id="line-191">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="line-192">            <span class="s2">&quot;Incorrect covariance dimensions. Check &#39;res&#39; columns dimension.&quot;</span>
+</span><span id="line-193">        <span class="p">)</span>
+</span><span id="line-194">
+</span><span id="line-195">    <span class="n">reco</span> <span class="o">=</span> <span class="n">_reconcile</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">id_nn</span><span class="o">=</span><span class="n">id_nn</span><span class="p">)</span>
+</span><span id="line-196">
+</span><span id="line-197">    <span class="n">rf</span> <span class="o">=</span> <span class="n">reco</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">approach</span><span class="o">=</span><span class="n">approach</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">immutable</span><span class="o">=</span><span class="n">immutable</span><span class="p">)</span>
+</span><span id="line-198">    <span class="k">return</span> <span class="n">rf</span></div>
+
+</span><span id="line-199">
+</span><span id="line-200">
 <div class="viewcode-block" id="terec">
 <a class="viewcode-back" href="../../doc_lsrec.html#forecopy.lsrec.terec">[docs]</a>
-</span><span id="line-186"><span class="k">def</span> <span class="nf">terec</span><span class="p">(</span>
-</span><span id="line-187">    <span class="n">base</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="line-188">    <span class="n">agg_order</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-189">    <span class="n">params</span><span class="p">:</span> <span class="n">tetools</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-190">    <span class="n">comb</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ols&#39;</span><span class="p">,</span>
-</span><span id="line-191">    <span class="n">res</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-192">    <span class="n">cov_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="line-193">    <span class="n">tew</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span>
-</span><span id="line-194">    <span class="n">approach</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;proj&#39;</span><span class="p">,</span>
-</span><span id="line-195">    <span class="n">solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
-</span><span id="line-196">    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> 
-</span><span id="line-197">    <span class="n">nn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="line-198">    <span class="o">**</span><span class="n">kwargs</span>
-</span><span id="line-199"><span class="p">):</span>
-</span><span id="line-200"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="line-201"><span class="sd">    Optimal combination temporal reconciliation</span>
-</span><span id="line-202"><span class="sd">    --------------------------------------------------</span>
-</span><span id="line-203"><span class="sd">    This function performs forecast reconciliation for a single time</span>
-</span><span id="line-204"><span class="sd">    series using temporal hierarchies (Athanasopoulos et al., 2017). </span>
-</span><span id="line-205"><span class="sd">    The reconciled forecasts can be computed using either a projection </span>
-</span><span id="line-206"><span class="sd">    approach (Byron, 1978, 1979) or the equivalent structural </span>
-</span><span id="line-207"><span class="sd">    approach by Hyndman et al. (2011). </span>
-</span><span id="line-208">
-</span><span id="line-209"><span class="sd">    Parameters</span>
-</span><span id="line-210"><span class="sd">    ----------</span>
-</span><span id="line-211">
-</span><span id="line-212"><span class="sd">    ``base``: ndarray</span>
-</span><span id="line-213"><span class="sd">        A :math:`[N(k^\\ast + m) \\times 1]` numeric vector containing the</span>
-</span><span id="line-214"><span class="sd">        base forecasts to be reconciled, ordered from lowest to highest </span>
-</span><span id="line-215"><span class="sd">        frequency; :math:`m` is the maximum aggregation order, :math:`k^\\ast` </span>
-</span><span id="line-216"><span class="sd">        is the sum of a chosen subset of the :math:`p - 1` factors of :math:`m` </span>
-</span><span id="line-217"><span class="sd">        (excluding :math:`m` itself) and :math:`h` is the forecast horizon for </span>
-</span><span id="line-218"><span class="sd">        the lowest frequency time series.</span>
-</span><span id="line-219">
-</span><span id="line-220"><span class="sd">    ``agg_order``: list</span>
-</span><span id="line-221"><span class="sd">        Highest available sampling frequency per seasonal cycle (max. order </span>
-</span><span id="line-222"><span class="sd">        of temporal aggregation, :math:`m`), or a list representing a</span>
-</span><span id="line-223"><span class="sd">        subset of :math:`p` factors of :math:`m`.</span>
+</span><span id="line-201"><span class="k">def</span><span class="w"> </span><span class="nf">terec</span><span class="p">(</span>
+</span><span id="line-202">    <span class="n">base</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+</span><span id="line-203">    <span class="n">agg_order</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-204">    <span class="n">params</span><span class="p">:</span> <span class="n">tetools</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-205">    <span class="n">comb</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ols&quot;</span><span class="p">,</span>
+</span><span id="line-206">    <span class="n">res</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-207">    <span class="n">cov_mat</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-208">    <span class="n">tew</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+</span><span id="line-209">    <span class="n">approach</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;proj&quot;</span><span class="p">,</span>
+</span><span id="line-210">    <span class="n">solver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+</span><span id="line-211">    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+</span><span id="line-212">    <span class="n">nn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="line-213">    <span class="n">immutable</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="line-214">    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="line-215"><span class="p">):</span>
+</span><span id="line-216"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="line-217"><span class="sd">    Optimal combination temporal reconciliation</span>
+</span><span id="line-218"><span class="sd">    --------------------------------------------------</span>
+</span><span id="line-219"><span class="sd">    This function performs forecast reconciliation for a single time</span>
+</span><span id="line-220"><span class="sd">    series using temporal hierarchies (Athanasopoulos et al., 2017).</span>
+</span><span id="line-221"><span class="sd">    The reconciled forecasts can be computed using either a projection</span>
+</span><span id="line-222"><span class="sd">    approach (Byron, 1978, 1979) or the equivalent structural</span>
+</span><span id="line-223"><span class="sd">    approach by Hyndman et al. (2011).</span>
 </span><span id="line-224">
-</span><span id="line-225"><span class="sd">    ``params``: tetools</span>
-</span><span id="line-226"><span class="sd">        A :class:`tetools &lt;forecopy.tools.tetools&gt;` object (alternative </span>
-</span><span id="line-227"><span class="sd">        to ``agg_order``). </span>
-</span><span id="line-228">
-</span><span id="line-229"><span class="sd">    ``comb``: str, default `ols`</span>
-</span><span id="line-230"><span class="sd">        A string specifying the reconciliation method. For a complete list, see </span>
-</span><span id="line-231"><span class="sd">        :func:`tecov() &lt;forecopy.cov.tecov&gt;`</span>
-</span><span id="line-232">
-</span><span id="line-233"><span class="sd">    ``res``: ndarray</span>
-</span><span id="line-234"><span class="sd">        A :math:`[N(k^\\ast+m) \\times 1]` optional numeric vector containing</span>
-</span><span id="line-235"><span class="sd">        the residuals ordered from the lowest frequency to the highest</span>
-</span><span id="line-236"><span class="sd">        frequency. This vector is used to compute some covariance matrices.</span>
-</span><span id="line-237">
-</span><span id="line-238"><span class="sd">    ``cov_mat``: jnp.ndarray</span>
-</span><span id="line-239"><span class="sd">        An :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` covariance matrix </span>
-</span><span id="line-240"><span class="sd">        (alternative to ``comb``).</span>
-</span><span id="line-241">
-</span><span id="line-242"><span class="sd">    ``tew``: str, default `sum`</span>
-</span><span id="line-243"><span class="sd">        Temporal aggregation weighting scheme applied within each high-to-low</span>
-</span><span id="line-244"><span class="sd">        block when building the aggregation matrix:</span>
-</span><span id="line-245">
-</span><span id="line-246"><span class="sd">        * `sum`: sum over the block.</span>
-</span><span id="line-247"><span class="sd">        * `avg`: arithmetic average over the block.</span>
-</span><span id="line-248"><span class="sd">        * `last`: take the last element in the block.</span>
-</span><span id="line-249"><span class="sd">        * `first`: take the first element in the block.</span>
-</span><span id="line-250">
-</span><span id="line-251"><span class="sd">    ``approach``: str, default `proj`</span>
-</span><span id="line-252"><span class="sd">        A string specifying the approach used to compute the reconciled forecasts. </span>
-</span><span id="line-253"><span class="sd">        Options include: </span>
-</span><span id="line-254">
-</span><span id="line-255"><span class="sd">        * `proj`: Projection approach according to Byron (1978, 1979).</span>
-</span><span id="line-256"><span class="sd">        * `strc`: Structural approach as proposed by Hyndman et al. (2011). </span>
-</span><span id="line-257"><span class="sd">        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach. </span>
-</span><span id="line-258"><span class="sd">          These methods cannot ensure identical results to the non-sparse version.</span>
-</span><span id="line-259"><span class="sd">    </span>
-</span><span id="line-260"><span class="sd">    ``solver``: str, default `default`</span>
-</span><span id="line-261"><span class="sd">        Linear solvers: `default` and `linearx`.</span>
-</span><span id="line-262">
-</span><span id="line-263"><span class="sd">    ``tol``: float</span>
-</span><span id="line-264"><span class="sd">        Tolerance value for some linear solvers.</span>
-</span><span id="line-265">
-</span><span id="line-266"><span class="sd">    ``nn``: bool</span>
-</span><span id="line-267"><span class="sd">        If `True`, enforces non-negativity on reconciled forecasts using </span>
-</span><span id="line-268"><span class="sd">        the heuristic &quot;set-negative-to-zero&quot; (Di Fonzo and Girolimetto, 2023). </span>
-</span><span id="line-269"><span class="sd">        Default is `False`.</span>
+</span><span id="line-225"><span class="sd">    Parameters</span>
+</span><span id="line-226"><span class="sd">    ----------</span>
+</span><span id="line-227">
+</span><span id="line-228"><span class="sd">    ``base``: ndarray</span>
+</span><span id="line-229"><span class="sd">        A :math:`[N(k^\\ast + m) \\times 1]` numeric vector containing the</span>
+</span><span id="line-230"><span class="sd">        base forecasts to be reconciled, ordered from lowest to highest</span>
+</span><span id="line-231"><span class="sd">        frequency; :math:`m` is the maximum aggregation order, :math:`k^\\ast`</span>
+</span><span id="line-232"><span class="sd">        is the sum of a chosen subset of the :math:`p - 1` factors of :math:`m`</span>
+</span><span id="line-233"><span class="sd">        (excluding :math:`m` itself) and :math:`h` is the forecast horizon for</span>
+</span><span id="line-234"><span class="sd">        the lowest frequency time series.</span>
+</span><span id="line-235">
+</span><span id="line-236"><span class="sd">    ``agg_order``: list</span>
+</span><span id="line-237"><span class="sd">        Highest available sampling frequency per seasonal cycle (max. order</span>
+</span><span id="line-238"><span class="sd">        of temporal aggregation, :math:`m`), or a list representing a</span>
+</span><span id="line-239"><span class="sd">        subset of :math:`p` factors of :math:`m`.</span>
+</span><span id="line-240">
+</span><span id="line-241"><span class="sd">    ``params``: tetools</span>
+</span><span id="line-242"><span class="sd">        A :class:`tetools &lt;forecopy.tools.tetools&gt;` object (alternative</span>
+</span><span id="line-243"><span class="sd">        to ``agg_order``).</span>
+</span><span id="line-244">
+</span><span id="line-245"><span class="sd">    ``comb``: str, default `ols`</span>
+</span><span id="line-246"><span class="sd">        A string specifying the reconciliation method. For a complete list, see</span>
+</span><span id="line-247"><span class="sd">        :func:`tecov() &lt;forecopy.cov.tecov&gt;`</span>
+</span><span id="line-248">
+</span><span id="line-249"><span class="sd">    ``res``: ndarray</span>
+</span><span id="line-250"><span class="sd">        A :math:`[N(k^\\ast+m) \\times 1]` optional numeric vector containing</span>
+</span><span id="line-251"><span class="sd">        the residuals ordered from the lowest frequency to the highest</span>
+</span><span id="line-252"><span class="sd">        frequency. This vector is used to compute some covariance matrices.</span>
+</span><span id="line-253">
+</span><span id="line-254"><span class="sd">    ``cov_mat``: jnp.ndarray</span>
+</span><span id="line-255"><span class="sd">        An :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` covariance matrix</span>
+</span><span id="line-256"><span class="sd">        (alternative to ``comb``).</span>
+</span><span id="line-257">
+</span><span id="line-258"><span class="sd">    ``tew``: str, default `sum`</span>
+</span><span id="line-259"><span class="sd">        Temporal aggregation weighting scheme applied within each high-to-low</span>
+</span><span id="line-260"><span class="sd">        block when building the aggregation matrix:</span>
+</span><span id="line-261">
+</span><span id="line-262"><span class="sd">        * `sum`: sum over the block.</span>
+</span><span id="line-263"><span class="sd">        * `avg`: arithmetic average over the block.</span>
+</span><span id="line-264"><span class="sd">        * `last`: take the last element in the block.</span>
+</span><span id="line-265"><span class="sd">        * `first`: take the first element in the block.</span>
+</span><span id="line-266">
+</span><span id="line-267"><span class="sd">    ``approach``: str, default `proj`</span>
+</span><span id="line-268"><span class="sd">        A string specifying the approach used to compute the reconciled forecasts.</span>
+</span><span id="line-269"><span class="sd">        Options include:</span>
 </span><span id="line-270">
-</span><span id="line-271"><span class="sd">    ``**kwargs``: Arguments passed on to :func:`tecov() &lt;forecopy.cov.tecov&gt;`.</span>
-</span><span id="line-272">
-</span><span id="line-273"><span class="sd">    Returns</span>
-</span><span id="line-274"><span class="sd">    -------</span>
-</span><span id="line-275"><span class="sd">    A :math:`[h(k^\\ast+m) \\times 1]` numeric vector of temporal reconciled </span>
-</span><span id="line-276"><span class="sd">    forecasts.</span>
-</span><span id="line-277">
-</span><span id="line-278"><span class="sd">    References</span>
-</span><span id="line-279"><span class="sd">    ----------</span>
-</span><span id="line-280"><span class="sd">    </span>
-</span><span id="line-281"><span class="sd">    * Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F. </span>
-</span><span id="line-282"><span class="sd">      (2017), Forecasting with Temporal Hierarchies, `European Journal of </span>
-</span><span id="line-283"><span class="sd">      Operational Research`, 262, 1, 60-74. </span>
-</span><span id="line-284"><span class="sd">      `DOI:10.1016/j.ejor.2017.02.046 &lt;https://doi.org/10.1016/j.ejor.2017.02.046&gt;`_</span>
-</span><span id="line-285"><span class="sd">    * Byron, R.P. (1978), The estimation of large social account matrices, </span>
-</span><span id="line-286"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367. </span>
-</span><span id="line-287"><span class="sd">      `DOI:10.2307/2344807 &lt;https://doi.org/10.2307/2344807&gt;`_</span>
-</span><span id="line-288"><span class="sd">    * Byron, R.P. (1979), Corrigenda: The estimation of large social account matrices,</span>
-</span><span id="line-289"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 142(3), 405.</span>
-</span><span id="line-290"><span class="sd">      `DOI:10.2307/2982515 &lt;https://doi.org/10.2307/2982515&gt;`_</span>
-</span><span id="line-291"><span class="sd">    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation </span>
-</span><span id="line-292"><span class="sd">      of solar forecasts, `Solar Energy`, 251, 13-29.</span>
-</span><span id="line-293"><span class="sd">      `DOI:10.1016/j.solener.2023.01.003 &lt;https://doi.org/10.1016/j.solener.2023.01.003&gt;`_</span>
-</span><span id="line-294"><span class="sd">    * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),</span>
-</span><span id="line-295"><span class="sd">      Optimal combination forecasts for hierarchical time series,</span>
-</span><span id="line-296"><span class="sd">      `Computational Statistics &amp; Data Analysis`, 55, 9, 2579-2589.</span>
-</span><span id="line-297"><span class="sd">      `DOI:10.1016/j.csda.2011.03.006 &lt;https://doi.org/10.1016/j.csda.2011.03.006&gt;`_</span>
-</span><span id="line-298">
-</span><span id="line-299"><span class="sd">    See Also</span>
-</span><span id="line-300"><span class="sd">    --------</span>
-</span><span id="line-301"><span class="sd">    :func:`tetools &lt;forecopy.tools.tetools&gt;`</span>
-</span><span id="line-302"><span class="sd">    :func:`tecov &lt;forecopy.cov.tecov&gt;`</span>
-</span><span id="line-303"><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="line-304">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="line-305">        <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="line-306">            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Base is not a vector.&quot;</span><span class="p">)</span>
-</span><span id="line-307">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
-</span><span id="line-308">        
-</span><span id="line-309">    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-310">        <span class="n">params</span> <span class="o">=</span> <span class="n">tetools</span><span class="p">(</span><span class="n">agg_order</span><span class="o">=</span><span class="n">agg_order</span><span class="p">,</span> <span class="n">tew</span><span class="o">=</span><span class="n">tew</span><span class="p">)</span>
-</span><span id="line-311">    <span class="k">else</span><span class="p">:</span>
-</span><span id="line-312">        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">tetools</span><span class="p">:</span>
-</span><span id="line-313">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;params is not a &#39;tetools&#39; class&quot;</span><span class="p">)</span>
-</span><span id="line-314">    
-</span><span id="line-315">    <span class="n">id_nn</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="line-316">    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">_agg_mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-317">        <span class="n">id_nn</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">ks</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">params</span><span class="o">.</span><span class="n">m</span><span class="p">)]</span>
-</span><span id="line-318">    
-</span><span id="line-319">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="line-320">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect base length.&quot;</span><span class="p">)</span>
-</span><span id="line-321">    <span class="k">else</span><span class="p">:</span>
-</span><span id="line-322">        <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span><span class="p">)</span>
-</span><span id="line-323">    
-</span><span id="line-324">    <span class="n">base</span> <span class="o">=</span> <span class="n">vec2hmat</span><span class="p">(</span><span class="n">vec</span> <span class="o">=</span> <span class="n">base</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">h</span><span class="p">,</span> <span class="n">kset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kset</span><span class="p">)</span>
-</span><span id="line-325">
-</span><span id="line-326">    <span class="n">cov_mat</span> <span class="o">=</span> <span class="n">tecov</span><span class="p">(</span>
-</span><span id="line-327">        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> 
-</span><span id="line-328">        <span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> 
-</span><span id="line-329">        <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span>
-</span><span id="line-330">        <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">comb</span><span class="o">=</span><span class="n">comb</span><span class="p">,</span> <span class="n">return_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="line-331">
-</span><span id="line-332">    <span class="k">if</span> <span class="n">cov_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span><span class="p">:</span>
-</span><span id="line-333">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect covariance dimensions. Check &#39;res&#39; columns dimension.&quot;</span><span class="p">)</span>
-</span><span id="line-334">    
-</span><span id="line-335">    <span class="n">reco</span> <span class="o">=</span> <span class="n">_reconcile</span><span class="p">(</span>
-</span><span id="line-336">        <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> 
-</span><span id="line-337">        <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">,</span> 
-</span><span id="line-338">        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
-</span><span id="line-339">        <span class="n">id_nn</span><span class="o">=</span><span class="n">id_nn</span>
-</span><span id="line-340">        <span class="p">)</span>
-</span><span id="line-341">
-</span><span id="line-342">    <span class="n">rf</span> <span class="o">=</span> <span class="n">reco</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">approach</span><span class="o">=</span><span class="n">approach</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">)</span>
-</span><span id="line-343">    <span class="n">rf</span> <span class="o">=</span> <span class="n">hmat2vec</span><span class="p">(</span><span class="n">hmat</span> <span class="o">=</span> <span class="n">rf</span><span class="p">,</span> <span class="n">kset</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kset</span><span class="p">)</span>
-</span><span id="line-344">    <span class="k">return</span> <span class="n">rf</span></div>
+</span><span id="line-271"><span class="sd">        * `proj`: Projection approach according to Byron (1978, 1979).</span>
+</span><span id="line-272"><span class="sd">        * `strc`: Structural approach as proposed by Hyndman et al. (2011).</span>
+</span><span id="line-273"><span class="sd">        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach.</span>
+</span><span id="line-274"><span class="sd">          These methods cannot ensure identical results to the non-sparse version.</span>
+</span><span id="line-275">
+</span><span id="line-276"><span class="sd">    ``solver``: str, default `default`</span>
+</span><span id="line-277"><span class="sd">        Linear solvers: `default` and `linearx`.</span>
+</span><span id="line-278">
+</span><span id="line-279"><span class="sd">    ``tol``: float</span>
+</span><span id="line-280"><span class="sd">        Tolerance value for some linear solvers.</span>
+</span><span id="line-281">
+</span><span id="line-282"><span class="sd">    ``nn``: bool</span>
+</span><span id="line-283"><span class="sd">        If `True`, enforces non-negativity on reconciled forecasts using</span>
+</span><span id="line-284"><span class="sd">        the heuristic &quot;set-negative-to-zero&quot; (Di Fonzo and Girolimetto, 2023).</span>
+</span><span id="line-285"><span class="sd">        Default is `False`.</span>
+</span><span id="line-286">
+</span><span id="line-287"><span class="sd">    ``immutable``: jnp.ndarray | None</span>
+</span><span id="line-288"><span class="sd">        Matrix where each row is a pair :math:`[k, j]`:</span>
+</span><span id="line-289">
+</span><span id="line-290"><span class="sd">        - `k`: temporal aggregation order (:math:`k = m, ..., 1`).</span>
+</span><span id="line-291"><span class="sd">        - `j`: temporal forecast horizon (:math:`j = 1, ..., m / k`).</span>
+</span><span id="line-292">
+</span><span id="line-293"><span class="sd">        Examples (quarterly series, :math:`m = 4`):</span>
+</span><span id="line-294">
+</span><span id="line-295"><span class="sd">        - ``np.array([[4, 1]])`` — fix the one-step-ahead annual forecast.</span>
+</span><span id="line-296"><span class="sd">        - ``np.array([[1, 2]])`` — fix the two-step-ahead quarterly forecast.</span>
+</span><span id="line-297">
+</span><span id="line-298"><span class="sd">        This option is only available when ``approach`` is set to `proj`.</span>
+</span><span id="line-299">
+</span><span id="line-300"><span class="sd">    ``**kwargs``: Arguments passed on to :func:`tecov() &lt;forecopy.cov.tecov&gt;`.</span>
+</span><span id="line-301">
+</span><span id="line-302"><span class="sd">    Returns</span>
+</span><span id="line-303"><span class="sd">    -------</span>
+</span><span id="line-304"><span class="sd">    A :math:`[h(k^\\ast+m) \\times 1]` numeric vector of temporal reconciled</span>
+</span><span id="line-305"><span class="sd">    forecasts.</span>
+</span><span id="line-306">
+</span><span id="line-307"><span class="sd">    References</span>
+</span><span id="line-308"><span class="sd">    ----------</span>
+</span><span id="line-309">
+</span><span id="line-310"><span class="sd">    * Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F.</span>
+</span><span id="line-311"><span class="sd">      (2017), Forecasting with Temporal Hierarchies, `European Journal of</span>
+</span><span id="line-312"><span class="sd">      Operational Research`, 262, 1, 60-74.</span>
+</span><span id="line-313"><span class="sd">      `DOI:10.1016/j.ejor.2017.02.046 &lt;https://doi.org/10.1016/j.ejor.2017.02.046&gt;`_</span>
+</span><span id="line-314"><span class="sd">    * Byron, R.P. (1978), The estimation of large social account matrices,</span>
+</span><span id="line-315"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367.</span>
+</span><span id="line-316"><span class="sd">      `DOI:10.2307/2344807 &lt;https://doi.org/10.2307/2344807&gt;`_</span>
+</span><span id="line-317"><span class="sd">    * Byron, R.P. (1979), Corrigenda: The estimation of large social account matrices,</span>
+</span><span id="line-318"><span class="sd">      `Journal of the Royal Statistical Society, Series A`, 142(3), 405.</span>
+</span><span id="line-319"><span class="sd">      `DOI:10.2307/2982515 &lt;https://doi.org/10.2307/2982515&gt;`_</span>
+</span><span id="line-320"><span class="sd">    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation</span>
+</span><span id="line-321"><span class="sd">      of solar forecasts, `Solar Energy`, 251, 13-29.</span>
+</span><span id="line-322"><span class="sd">      `DOI:10.1016/j.solener.2023.01.003 &lt;https://doi.org/10.1016/j.solener.2023.01.003&gt;`_</span>
+</span><span id="line-323"><span class="sd">    * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),</span>
+</span><span id="line-324"><span class="sd">      Optimal combination forecasts for hierarchical time series,</span>
+</span><span id="line-325"><span class="sd">      `Computational Statistics &amp; Data Analysis`, 55, 9, 2579-2589.</span>
+</span><span id="line-326"><span class="sd">      `DOI:10.1016/j.csda.2011.03.006 &lt;https://doi.org/10.1016/j.csda.2011.03.006&gt;`_</span>
+</span><span id="line-327">
+</span><span id="line-328"><span class="sd">    See Also</span>
+</span><span id="line-329"><span class="sd">    --------</span>
+</span><span id="line-330"><span class="sd">    :func:`tetools &lt;forecopy.tools.tetools&gt;`</span>
+</span><span id="line-331"><span class="sd">    :func:`tecov &lt;forecopy.cov.tecov&gt;`</span>
+</span><span id="line-332"><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="line-333">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="line-334">        <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="line-335">            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Base is not a vector.&quot;</span><span class="p">)</span>
+</span><span id="line-336">        <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="line-337">
+</span><span id="line-338">    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-339">        <span class="n">params</span> <span class="o">=</span> <span class="n">tetools</span><span class="p">(</span><span class="n">agg_order</span><span class="o">=</span><span class="n">agg_order</span><span class="p">,</span> <span class="n">tew</span><span class="o">=</span><span class="n">tew</span><span class="p">)</span>
+</span><span id="line-340">    <span class="k">else</span><span class="p">:</span>
+</span><span id="line-341">        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">tetools</span><span class="p">:</span>
+</span><span id="line-342">            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;params is not a &#39;tetools&#39; class&quot;</span><span class="p">)</span>
+</span><span id="line-343">
+</span><span id="line-344">    <span class="n">id_nn</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="line-345">    <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">_agg_mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-346">        <span class="n">id_nn</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ks</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+</span><span id="line-347">            <span class="kc">True</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+</span><span id="line-348">        <span class="p">]</span>
+</span><span id="line-349">
+</span><span id="line-350">    <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="line-351">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect base length.&quot;</span><span class="p">)</span>
+</span><span id="line-352">    <span class="k">else</span><span class="p">:</span>
+</span><span id="line-353">        <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span><span class="p">)</span>
+</span><span id="line-354">
+</span><span id="line-355">    <span class="n">base</span> <span class="o">=</span> <span class="n">vec2hmat</span><span class="p">(</span><span class="n">vec</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">kset</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">kset</span><span class="p">)</span>
+</span><span id="line-356">
+</span><span id="line-357">    <span class="k">if</span> <span class="n">immutable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-358">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">immutable</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</span><span id="line-359">        <span class="n">id_k</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kset</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">immutable</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+</span><span id="line-360">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">immutable</span><span class="p">[</span><span class="n">id_k</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="line-361">        <span class="n">id_h</span> <span class="o">=</span> <span class="p">[(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">immutable</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+</span><span id="line-362">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">immutable</span><span class="p">[</span><span class="n">id_h</span><span class="p">,</span> <span class="p">:]</span>
+</span><span id="line-363">        <span class="n">kpos</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([[</span><span class="n">x</span><span class="p">]</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">kset</span><span class="p">],</span> <span class="p">[])</span>
+</span><span id="line-364">        <span class="n">kpos</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">kpos</span><span class="p">)</span>
+</span><span id="line-365">        <span class="n">immutable</span> <span class="o">=</span> <span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">kpos</span> <span class="o">==</span> <span class="n">k</span><span class="p">)[</span><span class="n">h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">immutable</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+</span><span id="line-366">        <span class="n">immutable</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">immutable</span><span class="p">)</span>
+</span><span id="line-367">
+</span><span id="line-368">    <span class="n">cov_mat</span> <span class="o">=</span> <span class="n">tecov</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+</span><span id="line-369">        <span class="n">comb</span><span class="o">=</span><span class="n">comb</span><span class="p">,</span> <span class="n">return_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="line-370">    <span class="p">)</span>
+</span><span id="line-371">
+</span><span id="line-372">    <span class="k">if</span> <span class="n">cov_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">kt</span><span class="p">:</span>
+</span><span id="line-373">        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span><span id="line-374">            <span class="s2">&quot;Incorrect covariance dimensions. Check &#39;res&#39; columns dimension.&quot;</span>
+</span><span id="line-375">        <span class="p">)</span>
+</span><span id="line-376">
+</span><span id="line-377">    <span class="n">reco</span> <span class="o">=</span> <span class="n">_reconcile</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">cov_mat</span><span class="o">=</span><span class="n">cov_mat</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">id_nn</span><span class="o">=</span><span class="n">id_nn</span><span class="p">)</span>
+</span><span id="line-378">
+</span><span id="line-379">    <span class="n">rf</span> <span class="o">=</span> <span class="n">reco</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">approach</span><span class="o">=</span><span class="n">approach</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="n">solver</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="p">,</span> <span class="n">immutable</span><span class="o">=</span><span class="n">immutable</span><span class="p">)</span>
+</span><span id="line-380">    <span class="n">rf</span> <span class="o">=</span> <span class="n">hmat2vec</span><span class="p">(</span><span class="n">hmat</span><span class="o">=</span><span class="n">rf</span><span class="p">,</span> <span class="n">kset</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">kset</span><span class="p">)</span>
+</span><span id="line-381">    <span class="k">return</span> <span class="n">rf</span></div>
 
 </span></code></pre></div>
     </div></div>
@@ -529,18 +566,33 @@
     </div><footer class="py-6 border-t border-border md:py-0">
     <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-        <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© %YYYY, Daniele Girolimetto&nbsp;Built with <a class="font-medium underline underline-offset-4"
+        <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025YYY, Daniele Girolimetto&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 7.3.7</a></p>
+    rel="noreferrer">Sphinx 8.2.3</a></p>
 </div>
 </div>
 </footer>
-  </div>
+  </div><button id="scrolltop"
+        x-cloak
+        @click="window.scrollTo({top: 0, behavior: 'smooth'})"
+        class="fixed bottom-8 right-8 p-2 z-10 rounded-sm bg-gray-700 text-xs text-white transition-all duration-1000 hover:bg-gray-950 focus:bg-gray-950"
+        :class="{'opacity-0 invisible' : !showScrollTop}"
+>
+  <svg xmlns="http://www.w3.org/2000/svg"
+       height="14"
+       viewBox="0 96 960 960"
+       width="14"
+       class="inline fill-current mb-[2px]"
+       aria-hidden="true">
+    <path d="M450 896V370L202 618l-42-42 320-320 320 320-42 42-248-248v526h-60Z" />
+  </svg>
+  Back to top
+</button>
   
-    <script src="../../_static/documentation_options.js?v=01f34227"></script>
-    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/documentation_options.js?v=1e4afec3"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script defer="defer" src="../../_static/theme.js?v=e82a16a3"></script>
+    <script defer="defer" src="../../_static/theme.js?v=073f68d9"></script>
   
 </body>
 </html>

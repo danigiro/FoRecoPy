@@ -5,15 +5,16 @@ frameworks.
 
 Two main reconciliation functions are included:
 
-- :func:`csres() <forecopy.lsrec.csrec>`: 
+- :func:`csres() <forecopy.lsrec.csrec>`:
   For hierarchically, grouped, or otherwise linearly constrained series
   observed at the same frequency.
 
-- :func:`teres() <forecopy.lsrec.terec>`: 
+- :func:`teres() <forecopy.lsrec.terec>`:
   For temporal hierarchies, where the same time series can be aggregated or
   linearly combined at multiple frequencies (e.g., monthly, quarterly,
   yearly).
 """
+
 import jax.numpy as jnp
 from typing import Optional
 
@@ -23,36 +24,38 @@ from forecopy.cov import cscov, tecov
 from forecopy.reco import _reconcile
 from forecopy.fun import vec2hmat, hmat2vec
 
+
 def csrec(
     base: jnp.ndarray,
     agg_mat: Optional[jnp.ndarray] = None,
     cons_mat: Optional[jnp.ndarray] = None,
-    comb: str | jnp.ndarray = 'ols',
+    comb: str | jnp.ndarray = "ols",
     res: Optional[jnp.ndarray] = None,
-    approach: str = 'proj',
-    solver: str = 'default',
+    approach: str = "proj",
+    solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    **kwargs
+    immutable: jnp.array = None,
+    **kwargs,
 ):
     """
     Optimal combination cross-sectional reconciliation
     --------------------------------------------------
-    
-    This function performs optimal (in least squares sense) combination 
-    cross-sectional forecast reconciliation for a linearly constrained 
-    (e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al., 
-    2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The 
-    reconciled forecasts are calculated using either a projection approach 
-    (Byron, 1978, 1979) or the equivalent structural approach by Hyndman et 
+
+    This function performs optimal (in least squares sense) combination
+    cross-sectional forecast reconciliation for a linearly constrained
+    (e.g., hierarchical/grouped) multiple time series (Wickramasuriya et al.,
+    2019, Panagiotelis et al., 2022, Girolimetto and Di Fonzo, 2023). The
+    reconciled forecasts are calculated using either a projection approach
+    (Byron, 1978, 1979) or the equivalent structural approach by Hyndman et
     al. (2011).
 
     Parameters
     ----------
 
     ``base``: ndarray
-        A :math:`(h \\times n)` numeric matrix containing the base forecasts 
-        to be reconciled; :math:`h` is the forecast horizon, and :math:`n` 
+        A :math:`(h \\times n)` numeric matrix containing the base forecasts
+        to be reconciled; :math:`h` is the forecast horizon, and :math:`n`
         is the total number of time series (:math:`n = n_a + n_b`).
 
     ``agg_mat``: ndarray, default None
@@ -75,59 +78,63 @@ def csrec(
         residuals. This matrix is used to compute some covariance matrices.
 
     ``approach``: str, default `proj`
-        A string specifying the approach used to compute the reconciled forecasts. 
-        Options include: 
+        A string specifying the approach used to compute the reconciled forecasts.
+        Options include:
 
         * `proj`: Projection approach according to Byron (1978, 1979).
-        * `strc`: Structural approach as proposed by Hyndman et al. (2011). 
-        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach. 
+        * `strc`: Structural approach as proposed by Hyndman et al. (2011).
+        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach.
           These methods cannot ensure identical results to the non-sparse version.
-    
+
     ``solver``: str, default `default`
         Linear solvers: `default` and `linearx`.
 
     ``tol``: float
         Tolerance value for some linear solvers.
 
+    ``immutable``: jnp.array | None
+        Column indices of the base forecasts (the ``base`` parameter) to keep fixed.
+        This option is only available when ``approach`` is set to `proj`.
+
     ``nn``: bool
-        If `True`, enforces non-negativity on reconciled forecasts using 
-        the heuristic "set-negative-to-zero" (Di Fonzo and Girolimetto, 2023). 
+        If `True`, enforces non-negativity on reconciled forecasts using
+        the heuristic "set-negative-to-zero" (Di Fonzo and Girolimetto, 2023).
         Default is `False`.
 
     ``**kwargs``: Arguments passed on to :func:`cscov() <forecopy.cov.cscov>`.
 
     Returns
     -------
-    A :math:`(h \\times n)` numeric matrix of cross-sectional reconciled 
+    A :math:`(h \\times n)` numeric matrix of cross-sectional reconciled
     forecasts.
 
     References
     ----------
-    
-    * Byron, R.P. (1978), The estimation of large social account matrices, 
-      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367. 
+
+    * Byron, R.P. (1978), The estimation of large social account matrices,
+      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367.
       `DOI:10.2307/2344807 <https://doi.org/10.2307/2344807>`_
-    * Byron, R.P. (1979), Corrigenda: The estimation of large social account 
-      matrices, `Journal of the Royal Statistical Society, Series A`, 142(3), 
+    * Byron, R.P. (1979), Corrigenda: The estimation of large social account
+      matrices, `Journal of the Royal Statistical Society, Series A`, 142(3),
       405. `DOI:10.2307/2982515 <https://doi.org/10.2307/2982515>`_
-    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation 
+    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation
       of solar forecasts, `Solar Energy`, 251, 13-29.
       `DOI:10.1016/j.solener.2023.01.003 <https://doi.org/10.1016/j.solener.2023.01.003>`_
-    * Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast 
+    * Girolimetto, D. and Di Fonzo, T. (2023), Point and probabilistic forecast
       reconciliation for general linearly constrained multiple time series,
-      `Statistical Methods & Applications`, 33, 581-607. 
+      `Statistical Methods & Applications`, 33, 581-607.
       `DOI:10.1007/s10260-023-00738-6 <https://doi.org/10.1007/s10260-023-00738-6>`_
     * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),
       Optimal combination forecasts for hierarchical time series,
       `Computational Statistics & Data Analysis`, 55, 9, 2579-2589.
       `DOI:10.1016/j.csda.2011.03.006 <https://doi.org/10.1016/j.csda.2011.03.006>`_
-    * Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J. 
-      (2021), Forecast reconciliation: A geometric view with new insights on 
+    * Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. and Hyndman, R.J.
+      (2021), Forecast reconciliation: A geometric view with new insights on
       bias correction, `International Journal of Forecasting`, 37, 1, 343-359.
       `DOI:10.1016/j.ijforecast.2020.06.004 <https://doi.org/10.1016/j.ijforecast.2020.06.004>`_
-    * Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019), 
-      Optimal forecast reconciliation for hierarchical and grouped time series 
-      through trace minimization, `Journal of the American Statistical 
+    * Wickramasuriya, S.L., Athanasopoulos, G. and Hyndman, R.J. (2019),
+      Optimal forecast reconciliation for hierarchical and grouped time series
+      through trace minimization, `Journal of the American Statistical
       Association`, 114, 526, 804-819.
       `DOI:10.1080/01621459.2018.1448825 <https://doi.org/10.1080/01621459.2018.1448825>`_
 
@@ -143,73 +150,74 @@ def csrec(
 
     id_nn = None
     if params.agg_mat is not None:
-        id_nn = [False for i in range(0,params.dim[1])] + [True for i in range(0,params.dim[2])]
-    
+        id_nn = [False for i in range(0, params.dim[1])] + [
+            True for i in range(0, params.dim[2])
+        ]
+
     if base.shape[1] != params.dim[0]:
         raise ValueError("Incorrect base columns dimension.")
 
-    cov_mat = cscov(
-        params=params, 
-        res=res
-        ).fit(comb=comb, return_vector=True, **kwargs)
+    if immutable is not None:
+        immutable = immutable.astype(int)
+        immutable = jnp.unique(immutable)
 
+        if immutable.size >= params.dim[0]:
+            raise TypeError(f"immutable size must be less or equal to {params.dim[0]}")
 
-    reco = _reconcile(
-        base=base, 
-        cov_mat=cov_mat, 
-        params=params,
-        id_nn=id_nn
-        )
+        if jnp.max(immutable) >= params.dim[0]:
+            raise TypeError(f"max(immutable) must be less or equal to {params.dim[0] - 1}")
 
-    rf = reco.fit(approach=approach, solver=solver, tol=tol, nn=nn)
+    cov_mat = cscov(params=params, res=res).fit(
+        comb=comb, return_vector=True, **kwargs
+    )
+
+    reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
+
+    rf = reco.fit(approach=approach, solver=solver, tol=tol, nn=nn, immutable=immutable)
     return rf
 
 
 def terec(
     base: jnp.ndarray,
     agg_order: list = None,
-    fh: int = 1,
-    comb: str = 'ols',
+    comb: str = "ols",
     res: jnp.ndarray = None,
     cov_mat: jnp.ndarray = None,
     tew: str = "sum",
-    approach: str = 'proj',
-    solver: str = 'default',
-    tol: float = 1e-6, 
+    approach: str = "proj",
+    solver: str = "default",
+    tol: float = 1e-6,
     nn: bool = False,
-    **kwargs
+    immutable: jnp.ndarray = None,
+    **kwargs,
 ):
     """
     Optimal combination temporal reconciliation
     --------------------------------------------------
     This function performs forecast reconciliation for a single time
-    series using temporal hierarchies (Athanasopoulos et al., 2017). 
-    The reconciled forecasts can be computed using either a projection 
-    approach (Byron, 1978, 1979) or the equivalent structural 
-    approach by Hyndman et al. (2011). 
+    series using temporal hierarchies (Athanasopoulos et al., 2017).
+    The reconciled forecasts can be computed using either a projection
+    approach (Byron, 1978, 1979) or the equivalent structural
+    approach by Hyndman et al. (2011).
 
     Parameters
     ----------
 
     ``base``: ndarray
         A :math:`[N(k^\\ast + m) \\times 1]` numeric vector containing the
-        base forecasts to be reconciled, ordered from lowest to highest 
-        frequency; :math:`m` is the maximum aggregation order, :math:`k^\\ast` 
-        is the sum of a chosen subset of the :math:`p - 1` factors of :math:`m` 
-        (excluding :math:`m` itself) and :math:`h` is the forecast horizon for 
+        base forecasts to be reconciled, ordered from lowest to highest
+        frequency; :math:`m` is the maximum aggregation order, :math:`k^\\ast`
+        is the sum of a chosen subset of the :math:`p - 1` factors of :math:`m`
+        (excluding :math:`m` itself) and :math:`h` is the forecast horizon for
         the lowest frequency time series.
 
     ``agg_order``: list
-        Highest available sampling frequency per seasonal cycle (max. order 
+        Highest available sampling frequency per seasonal cycle (max. order
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
 
-    ``fh``: int
-        Forecast horizon for the lowest frequency (most temporally aggregated)
-        series.
-
     ``comb``: str, default `ols`
-        A string specifying the reconciliation method. For a complete list, see 
+        A string specifying the reconciliation method. For a complete list, see
         :func:`tecov() <forecopy.cov.tecov>`
 
     ``res``: ndarray
@@ -218,7 +226,7 @@ def terec(
         frequency. This vector is used to compute some covariance matrices.
 
     ``cov_mat``: jnp.ndarray
-        An :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` covariance matrix 
+        An :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` covariance matrix
         (alternative to ``comb``).
 
     ``tew``: str, default `sum`
@@ -231,14 +239,14 @@ def terec(
         * `first`: take the first element in the block.
 
     ``approach``: str, default `proj`
-        A string specifying the approach used to compute the reconciled forecasts. 
-        Options include: 
+        A string specifying the approach used to compute the reconciled forecasts.
+        Options include:
 
         * `proj`: Projection approach according to Byron (1978, 1979).
-        * `strc`: Structural approach as proposed by Hyndman et al. (2011). 
-        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach. 
+        * `strc`: Structural approach as proposed by Hyndman et al. (2011).
+        * `proj_tol`, `strc_tol`: implementation using the sparse matrix approach.
           These methods cannot ensure identical results to the non-sparse version.
-    
+
     ``solver``: str, default `default`
         Linear solvers: `default` and `linearx`.
 
@@ -246,31 +254,44 @@ def terec(
         Tolerance value for some linear solvers.
 
     ``nn``: bool
-        If `True`, enforces non-negativity on reconciled forecasts using 
-        the heuristic "set-negative-to-zero" (Di Fonzo and Girolimetto, 2023). 
+        If `True`, enforces non-negativity on reconciled forecasts using
+        the heuristic "set-negative-to-zero" (Di Fonzo and Girolimetto, 2023).
         Default is `False`.
+
+    ``immutable``: jnp.ndarray | None
+        Matrix where each row is a pair :math:`[k, j]`:
+
+        - `k`: temporal aggregation order (:math:`k = m, ..., 1`).
+        - `j`: temporal forecast horizon (:math:`j = 1, ..., m / k`).
+
+        Examples (quarterly series, :math:`m = 4`):
+
+        - ``np.array([[4, 1]])`` — fix the one-step-ahead annual forecast.
+        - ``np.array([[1, 2]])`` — fix the two-step-ahead quarterly forecast.
+
+        This option is only available when ``approach`` is set to `proj`.
 
     ``**kwargs``: Arguments passed on to :func:`tecov() <forecopy.cov.tecov>`.
 
     Returns
     -------
-    A :math:`[h(k^\\ast+m) \\times 1]` numeric vector of temporal reconciled 
+    A :math:`[h(k^\\ast+m) \\times 1]` numeric vector of temporal reconciled
     forecasts.
 
     References
     ----------
-    
-    * Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F. 
-      (2017), Forecasting with Temporal Hierarchies, `European Journal of 
-      Operational Research`, 262, 1, 60-74. 
+
+    * Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. and Petropoulos, F.
+      (2017), Forecasting with Temporal Hierarchies, `European Journal of
+      Operational Research`, 262, 1, 60-74.
       `DOI:10.1016/j.ejor.2017.02.046 <https://doi.org/10.1016/j.ejor.2017.02.046>`_
-    * Byron, R.P. (1978), The estimation of large social account matrices, 
-      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367. 
+    * Byron, R.P. (1978), The estimation of large social account matrices,
+      `Journal of the Royal Statistical Society, Series A`, 141, 3, 359-367.
       `DOI:10.2307/2344807 <https://doi.org/10.2307/2344807>`_
     * Byron, R.P. (1979), Corrigenda: The estimation of large social account matrices,
       `Journal of the Royal Statistical Society, Series A`, 142(3), 405.
       `DOI:10.2307/2982515 <https://doi.org/10.2307/2982515>`_
-    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation 
+    * Di Fonzo, T. and Girolimetto, D. (2023), Spatio-temporal reconciliation
       of solar forecasts, `Solar Energy`, 251, 13-29.
       `DOI:10.1016/j.solener.2023.01.003 <https://doi.org/10.1016/j.solener.2023.01.003>`_
     * Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. and Shang, H.L. (2011),
@@ -292,31 +313,39 @@ def terec(
     
     id_nn = None
     if params._agg_mat is not None:
-        id_nn = [False for i in range(0,params.ks)] + [True for i in range(0,params.m)]
-    
+        id_nn = [False for i in range(0, params.ks)] + [
+            True for i in range(0, params.m)
+        ]
+
     if base.shape[0] % params.kt != 0:
         raise ValueError("Incorrect base length.")
     else:
         h = int(base.shape[0] / params.kt)
-    
-    base = vec2hmat(vec = base, h = h, kset = params.kset)
 
-    cov_mat = tecov(
-        params=params, 
-        res=res, 
-        cov_mat=cov_mat
-        ).fit(comb=comb, return_vector=True, **kwargs)
+    base = vec2hmat(vec=base, h=h, kset=params.kset)
+
+    if immutable is not None:
+        immutable = immutable.astype(int)
+        id_k = [x in params.kset for x in immutable[:, 0]]
+        immutable = immutable[id_k, :]
+        id_h = [(y <= params.m / x).tolist() for x, y in immutable.tolist()]
+        immutable = immutable[id_h, :]
+        kpos = sum([[x] * int(params.m / x) for x in params.kset], [])
+        kpos = jnp.asarray(kpos)
+        immutable = [jnp.flatnonzero(kpos == k)[h - 1] for k, h in immutable.tolist()]
+        immutable = jnp.hstack(immutable)
+
+    cov_mat = tecov(params=params, res=res, cov_mat=cov_mat).fit(
+        comb=comb, return_vector=True, **kwargs
+    )
 
     if cov_mat.shape[0] != params.kt:
-        raise ValueError("Incorrect covariance dimensions. Check 'res' columns dimension.")
-    
-    reco = _reconcile(
-        base=base, 
-        cov_mat=cov_mat, 
-        params=params,
-        id_nn=id_nn
+        raise ValueError(
+            "Incorrect covariance dimensions. Check 'res' columns dimension."
         )
 
-    rf = reco.fit(approach=approach, solver=solver, tol=tol, nn=nn)
-    rf = hmat2vec(hmat = rf, kset = params.kset)
+    reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
+
+    rf = reco.fit(approach=approach, solver=solver, tol=tol, nn=nn, immutable=immutable)
+    rf = hmat2vec(hmat=rf, kset=params.kset)
     return rf

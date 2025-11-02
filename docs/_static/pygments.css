@@ -6,7 +6,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .hll { background-color: #ffffcc }
 .highlight { background: #ffffff; }
 .highlight .c { font-style: italic } /* Comment */
-.highlight .err { border: 1px solid #FF0000 } /* Error */
+.highlight .err { border: 1px solid #F00 } /* Error */
 .highlight .k { font-weight: bold } /* Keyword */
 .highlight .ch { font-style: italic } /* Comment.Hashbang */
 .highlight .cm { font-style: italic } /* Comment.Multiline */
@@ -14,6 +14,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .c1 { font-style: italic } /* Comment.Single */
 .highlight .cs { font-style: italic } /* Comment.Special */
 .highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .highlight .gh { font-weight: bold } /* Generic.Heading */
 .highlight .gp { font-weight: bold } /* Generic.Prompt */
 .highlight .gs { font-weight: bold } /* Generic.Strong */
