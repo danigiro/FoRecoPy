@@ -165,7 +165,7 @@ def csrec(
             raise TypeError(f"immutable size must be less or equal to {params.dim[0]}")
 
         if jnp.max(immutable) >= params.dim[0]:
-            raise TypeError(f"max(immutable) must be less or equal to {params.dim[0] - 1}")
+            raise TypeError(f"max(immutable) must be less than {params.dim[0]}")
 
     cov_mat = cscov(params=params, res=res).fit(
         comb=comb, return_vector=True, **kwargs
@@ -304,12 +304,10 @@ def terec(
     :func:`tetools <forecopy.tools.tetools>`
     :func:`tecov <forecopy.cov.tecov>`
     """
-    if len(base.shape) != 1:
-        if base.shape[0] != 1:
-            raise ValueError("Base is not a vector.")
-        base = base[0,:]
+
+    assert len(base.shape) == 1, "Base should be a vector."
         
-    params = tetools(agg_order=agg_order, tew=tew, fh=fh)
+    params = tetools(agg_order=agg_order, tew=tew)
     
     id_nn = None
     if params._agg_mat is not None:
@@ -320,7 +318,7 @@ def terec(
     if base.shape[0] % params.kt != 0:
         raise ValueError("Incorrect base length.")
     else:
-        h = int(base.shape[0] / params.kt)
+        h = base.shape[0] // params.kt
 
     base = vec2hmat(vec=base, h=h, kset=params.kset)
 
@@ -335,14 +333,9 @@ def terec(
         immutable = [jnp.flatnonzero(kpos == k)[h - 1] for k, h in immutable.tolist()]
         immutable = jnp.hstack(immutable)
 
-    cov_mat = tecov(params=params, res=res, cov_mat=cov_mat).fit(
+    cov_mat = tecov(params=params, res=res).fit(
         comb=comb, return_vector=True, **kwargs
     )
-
-    if cov_mat.shape[0] != params.kt:
-        raise ValueError(
-            "Incorrect covariance dimensions. Check 'res' columns dimension."
-        )
 
     reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
 
