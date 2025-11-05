@@ -273,17 +273,17 @@ class tetools:
     ( (12/6)*2 + (12/3)*2 + (12/1)*2, 12 )
     """
 
-    def __init__(self, agg_order: list | int, tew: str = "sum", fh: int = 1):
+    def __init__(self, agg_order: list[int] | int, tew: str = "sum", fh: int = 1):
 
-        self.m = np.max(agg_order)
+        self.m = int(max(agg_order)) if isinstance(agg_order, list) else agg_order
         kset_full = factors(self.m)
         if isinstance(agg_order, int):
             kset = kset_full
         else:
-            kset = sorted([i for i in agg_order if i in kset_full], reverse=True)
+            kset = sorted([int(i) for i in agg_order if i in kset_full], reverse=True)
             if min(kset) != 1:
-                self.kset = self.kset + [1]
-        self.kset = [int(i) for i in kset]
+                kset = kset + [1]
+        self.kset = kset
         self.p = len(self.kset)
         self.ks = int(sum(self.m / jnp.array(self.kset[0:-1])))
         self.kt = int(sum(self.m / jnp.array(self.kset)))
@@ -306,21 +306,11 @@ class tetools:
             for i in range((len(freq) - 1))
         ]
         self._agg_mat = jnp.vstack(agg_mat)
-        self._cons_mat = None
-        self._strc_mat = None
+        self._cons_mat = jnp.hstack((jnp.eye(self._agg_mat.shape[0]), -self._agg_mat))
+        self._strc_mat = jnp.vstack((self._agg_mat, jnp.eye(self._agg_mat.shape[1])))
 
     def strc_mat(self):
-        if self._strc_mat is None:
-            self._strc_mat = jnp.vstack(
-                (self._agg_mat, jnp.eye(self._agg_mat.shape[1]))
-            )
-
         return self._strc_mat
-
-    def cons_mat(self):
-        if self._cons_mat is None:
-            self._cons_mat = jnp.hstack(
-                (jnp.eye(self._agg_mat.shape[0]), -self._agg_mat)
-            )
-
+    
+    def cons_mat(self):        
         return self._cons_mat

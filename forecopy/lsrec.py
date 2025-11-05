@@ -5,17 +5,18 @@ frameworks.
 
 Two main reconciliation functions are included:
 
-- :func:`csres() <forecopy.lsrec.csrec>`:
+- :func:`csrec() <forecopy.lsrec.csrec>`: 
   For hierarchically, grouped, or otherwise linearly constrained series
   observed at the same frequency.
 
-- :func:`teres() <forecopy.lsrec.terec>`:
+- :func:`terec() <forecopy.lsrec.terec>`: 
   For temporal hierarchies, where the same time series can be aggregated or
   linearly combined at multiple frequencies (e.g., monthly, quarterly,
   yearly).
 """
 
 import jax.numpy as jnp
+from typing import Optional
 
 # From forecopy
 from forecopy.tools import cstools, tetools
@@ -26,17 +27,15 @@ from forecopy.fun import vec2hmat, hmat2vec
 
 def csrec(
     base: jnp.ndarray,
-    agg_mat: jnp.ndarray = None,
-    cons_mat: jnp.ndarray = None,
-    params: cstools = None,
-    comb: str = "ols",
-    res: jnp.ndarray = None,
-    cov_mat: jnp.ndarray = None,
+    agg_mat: Optional[jnp.ndarray] = None,
+    cons_mat: Optional[jnp.ndarray] = None,
+    comb: str | jnp.ndarray = "ols",
+    res: Optional[jnp.ndarray] = None,
     approach: str = "proj",
     solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    immutable: jnp.array = None,
+    immutable: Optional[jnp.array] = None,
     **kwargs,
 ):
     """
@@ -59,31 +58,24 @@ def csrec(
         to be reconciled; :math:`h` is the forecast horizon, and :math:`n`
         is the total number of time series (:math:`n = n_a + n_b`).
 
-    ``agg_mat``: ndarray
+    ``agg_mat``: ndarray, default None
         A :math:`(n_a \\times n_b)` numeric matrix representing the
-        cross-sectional aggregation matrix (alternative to ``cons_mat`` and
-        ``params``). It maps the :math:`n_b` bottom-level (free) variables
+        cross-sectional aggregation matrix (alternative to ``cons_mat``).
+        It maps the :math:`n_b` bottom-level (free) variables
         into the :math:`n_a` upper (constrained) variables.
 
-    ``cons_mat``: ndarray
+    ``cons_mat``: ndarray, default None
         A :math:`(n_a \\times n)` numeric matrix representing the
-        cross-sectional zero constraints (alternative to ``agg_mat``
-        and ``params``).
+        cross-sectional zero constraints (alternative to ``agg_mat``).
 
-    ``params``: cstools
-         A :class:`cstools <forecopy.tools.cstools>` object (alternative to
-         ``agg_mat`` and ``cons_mat``).
-
-    ``comb``: str, default `ols`
-        A string specifying the reconciliation method. For a complete list,
+    ``comb``: str | ndarray, default `ols`
+        A string specifying the reconciliation method. For a complete list, 
         see :func:`cscov() <forecopy.cov.cscov>`
+        Alternatively, a custom :math:`(n \\times n)` covariance matrix.
 
-    ``res``: ndarray
-        An :math:`(N \\times n)` optional numeric matrix containing the
+    ``res``: ndarray, default None
+        An :math:`(N \\times n)` optional numeric matrix containing the 
         residuals. This matrix is used to compute some covariance matrices.
-
-    ``cov_mat``: jnp.ndarray
-        An :math:`(n \\times n)` covariance matrix (alternative to ``comb``).
 
     ``approach``: str, default `proj`
         A string specifying the approach used to compute the reconciled forecasts.
@@ -154,14 +146,7 @@ def csrec(
     if len(base.shape) == 1:
         base = base[None, :]
 
-    if base.shape[1] == 1:
-        base = base.T
-
-    if params is None:
-        params = cstools(agg_mat=agg_mat, cons_mat=cons_mat)
-    else:
-        if type(params) is not cstools:
-            raise TypeError("params is not a 'cstools' class")
+    params = cstools(agg_mat=agg_mat, cons_mat=cons_mat)
 
     id_nn = None
     if params.agg_mat is not None:
@@ -179,18 +164,12 @@ def csrec(
         if immutable.size >= params.dim[0]:
             raise TypeError(f"immutable size must be less or equal to {params.dim[0]}")
 
-        if jnp.max(immutable) > params.dim[0]:
-            raise TypeError(f"max(immutable) must be less or equal to {params.dim[0]}")
-        immutable = immutable[immutable < params.dim[0]]
+        if jnp.max(immutable) >= params.dim[0]:
+            raise TypeError(f"max(immutable) must be less than {params.dim[0]}")
 
-    cov_mat = cscov(params=params, res=res, cov_mat=cov_mat).fit(
+    cov_mat = cscov(params=params, res=res).fit(
         comb=comb, return_vector=True, **kwargs
     )
-
-    if cov_mat.shape[0] != params.dim[0]:
-        raise ValueError(
-            "Incorrect covariance dimensions. Check 'res' columns dimension."
-        )
 
     reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
 
@@ -200,17 +179,16 @@ def csrec(
 
 def terec(
     base: jnp.ndarray,
-    agg_order: list = None,
-    params: tetools = None,
+    agg_order: list | int = 1,
     comb: str = "ols",
-    res: jnp.ndarray = None,
-    cov_mat: jnp.ndarray = None,
+    res: Optional[jnp.ndarray] = None,
+    cov_mat: Optional[jnp.ndarray] = None,
     tew: str = "sum",
     approach: str = "proj",
     solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    immutable: jnp.ndarray = None,
+    immutable: Optional[jnp.ndarray] = None,
     **kwargs,
 ):
     """
@@ -233,14 +211,10 @@ def terec(
         (excluding :math:`m` itself) and :math:`h` is the forecast horizon for
         the lowest frequency time series.
 
-    ``agg_order``: list
-        Highest available sampling frequency per seasonal cycle (max. order
+    ``agg_order``: list | int
+        Highest available sampling frequency per seasonal cycle (max. order 
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
-
-    ``params``: tetools
-        A :class:`tetools <forecopy.tools.tetools>` object (alternative
-        to ``agg_order``).
 
     ``comb``: str, default `ols`
         A string specifying the reconciliation method. For a complete list, see
@@ -330,17 +304,11 @@ def terec(
     :func:`tetools <forecopy.tools.tetools>`
     :func:`tecov <forecopy.cov.tecov>`
     """
-    if len(base.shape) != 1:
-        if base.shape[0] != 1:
-            raise ValueError("Base is not a vector.")
-        base = base[0, :]
 
-    if params is None:
-        params = tetools(agg_order=agg_order, tew=tew)
-    else:
-        if type(params) is not tetools:
-            raise TypeError("params is not a 'tetools' class")
-
+    assert len(base.shape) == 1, "Base should be a vector."
+        
+    params = tetools(agg_order=agg_order, tew=tew)
+    
     id_nn = None
     if params._agg_mat is not None:
         id_nn = [False for i in range(0, params.ks)] + [
@@ -350,7 +318,7 @@ def terec(
     if base.shape[0] % params.kt != 0:
         raise ValueError("Incorrect base length.")
     else:
-        h = int(base.shape[0] / params.kt)
+        h = base.shape[0] // params.kt
 
     base = vec2hmat(vec=base, h=h, kset=params.kset)
 
@@ -365,14 +333,9 @@ def terec(
         immutable = [jnp.flatnonzero(kpos == k)[h - 1] for k, h in immutable.tolist()]
         immutable = jnp.hstack(immutable)
 
-    cov_mat = tecov(params=params, res=res, cov_mat=cov_mat).fit(
+    cov_mat = tecov(params=params, res=res).fit(
         comb=comb, return_vector=True, **kwargs
     )
-
-    if cov_mat.shape[0] != params.kt:
-        raise ValueError(
-            "Incorrect covariance dimensions. Check 'res' columns dimension."
-        )
 
     reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
 

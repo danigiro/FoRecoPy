@@ -140,3 +140,34 @@ def shrink_estim(x, mse=True):
     
     shrink_cov = lam * jnp.diag(diag_covm) + (1 - lam) * covm
     return {'cov': shrink_cov, 'lambda': lam}
+
+def is_PD(matrix: jnp.ndarray, tol: float = 1e-10) -> bool:
+    """
+    Check if a matrix is positive definite.
+
+    Parameters
+    ----------
+    matrix : jnp.ndarray
+        The matrix to validate.
+    tol : float, default 1e-10
+        Tolerance for symmetry check.
+
+    Returns
+    -------
+    bool
+        True if the matrix is a valid covariance matrix.
+    """
+    # Check if matrix is square
+    if len(matrix.shape) != 2 or matrix.shape[0] != matrix.shape[1]:
+        return False
+
+    # Check if matrix is symmetric
+    if jnp.max(jnp.abs(matrix - matrix.T)) > tol:
+        return False
+
+    # Check if matrix is positive definite using Cholesky decomposition
+    try:
+        jnp.linalg.cholesky(matrix)
+        return True
+    except jax.linalg.LinAlgError:
+        return False

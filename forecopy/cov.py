@@ -18,7 +18,7 @@ Two main toolsets are included:
 """
 import jax.numpy as jnp
 from forecopy.tools import cstools, tetools
-from forecopy.fun import shrink_estim, sample_estim, factors, vec2hmat
+from forecopy.fun import shrink_estim, sample_estim, vec2hmat, is_PD
 
 class cscov:
     """
@@ -76,14 +76,15 @@ class cscov:
     :func:`cstools <forecopy.tools.cstools>`
     :func:`csrec <forecopy.lsrec.csrec>`
     """
-    def __init__(self, params: cstools = None, res: jnp.ndarray = None, 
-                 cov_mat = None):
+    def __init__(self, params: cstools = None, res: jnp.ndarray = None):
+        if res is not None:
+            assert res.shape[1] == params.dim[0], "The size of the residuals does not match."
         self.params = params
         self.n = params.dim[0]
         self.res = res
-        self.cov_mat = cov_mat
+        self.cov_mat = None
 
-    def fit(self, comb = 'ols', return_vector = False, shr_fun = shrink_estim, 
+    def fit(self, comb: str | jnp.ndarray = 'ols', return_vector = False, shr_fun = shrink_estim, 
             mse = True):
         """
         Estimate a cross-sectional covariance approximation.
@@ -91,7 +92,7 @@ class cscov:
         Parameters
         ----------
 
-        ``comb``: str, default 'ols'
+        ``comb``: str or ndarray, default 'ols'
             The approximation/reconciliation assumption to use:
 
               - `ols`: identity error covariance matrix.
@@ -99,6 +100,7 @@ class cscov:
               - `wls`: series-wise variances from residuals `res`.
               - `shr`: shrunk covariance of `res` (Wickramasuriya et al., 2019).
               - `sam` : sample covariance of `res`.
+              - A custom :math:`(n \\times n)` covariance matrix.
 
         ``return_vector``: bool, default `False`
             If True, return the diagonal of the matrix, only for 
@@ -118,20 +120,23 @@ class cscov:
         -------
         A :math:`(n \\times n)` symmetric positive (semi-)definite matrix.
         """
-        if self.cov_mat is not None:
+        if not isinstance(comb, str):
+            self.cov_mat = jnp.array(comb)
+            assert self.cov_mat.shape[0] == self.cov_mat.shape[1] == self.n, "custom matrix should be square."
+            assert is_PD(self.cov_mat), "custom matrix should be positive definite."
             return self.cov_mat
         elif comb == "ols":
-            return _cscov_ols(
+            self.cov_mat = _cscov_ols(
                 n = self.n, 
                 return_vector = return_vector
                 )
         elif comb == "str":
-            return _cscov_str(
+            self.cov_mat = _cscov_str(
                 strc_mat = self.params.strc_mat(), 
                 return_vector = return_vector
                 )
         elif comb == "wls":
-            return _cscov_wls(
+            self.cov_mat =_cscov_wls(
                 res = self.res, 
                 mse = mse, 
                 return_vector = return_vector
@@ -143,11 +148,13 @@ class cscov:
                 shr_fun = shr_fun
                 )
             self.lmb = out.get('lambda')
+            self.cov_mat = out.get('cov')
             return out.get('cov')
         elif comb == "sam":
-            return _cscov_sam(res = self.res, mse = mse)
+            self.cov_mat =_cscov_sam(res = self.res, mse = mse)
         else:
             raise Exception("Error cscov")
+        return self.cov_mat
 
 class tecov:
     """
@@ -201,11 +208,15 @@ class tecov:
     :func:`tetools <forecopy.tools.tetools>`
     :func:`terec <forecopy.lsrec.terec>`
     """
-    def __init__(self, params: tetools = None, res: jnp.ndarray = None, cov_mat = None):
+    def __init__(self, params: tetools = None, res: jnp.ndarray = None):
+        if res is not None:
+            assert len(res.shape) == 1, "residual should be a vector"
+            if res.shape[0] % params.kt != 0:
+                raise ValueError("Incorrect residual length.")
         self.params = params
         self.kt = params.kt
         self.res = res
-        self.cov_mat = cov_mat
+        self.cov_mat = None
 
     def fit(self, comb = 'ols', return_vector = False, shr_fun = shrink_estim, mse = True):
         """
@@ -213,7 +224,7 @@ class tecov:
 
         Parameters
         ----------
-        ``comb``: str, default 'ols'
+        ``comb``: str | ndarray, default 'ols'
             The approximation/reconciliation assumption to use:
 
               - `ols`: identity error covariance matrix.
@@ -221,6 +232,7 @@ class tecov:
               - `wlsv`: series-wise variances from residuals `res`.
               - `shr`: shrunk covariance of `res`.
               - `sam` : sample covariance of `res`.
+              - A custom :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` covariance matrix.
 
         ``return_vector``: bool, default `False`
             If True, return the diagonal of the matrix, only for 
@@ -242,8 +254,12 @@ class tecov:
         A :math:`[(k^\\ast+m) \\times (k^\\ast+m)]` symmetric positive 
         (semi-)definite matrix.
         """
-        if self.cov_mat is not None:
+        if not isinstance(comb, str):
+            self.cov_mat = jnp.array(comb)
+            assert self.cov_mat.shape[0] == self.cov_mat.shape[1] == self.kt, "custom matrix should be square."
+            assert is_PD(self.cov_mat), "custom matrix should be positive definite."
             return self.cov_mat
+
         elif comb == "ols":
             return _cscov_ols(
                 n = self.kt, 
@@ -256,14 +272,14 @@ class tecov:
                 )
         elif comb == "wlsv":
             return _tecov_wlsv(
-                agg_order = self.params.kset, 
+                kset = self.params.kset, 
                 res = self.res,
                 mse = mse, 
                 return_vector = return_vector
                 )
         elif comb == "shr":
             out = _tecov_shr(
-                agg_order = self.params.kset, 
+                kset = self.params.kset, 
                 res = self.res, 
                 mse = mse, 
                 shr_fun = shr_fun
@@ -272,7 +288,7 @@ class tecov:
             return out.get('cov')
         elif comb == "sam":
             return _tecov_sam(
-                agg_order = self.params.kset, 
+                kset = self.params.kset, 
                 res = self.res,
                 mse = mse
                 )
@@ -281,32 +297,22 @@ class tecov:
 
 
 def _cscov_ols(n, return_vector = False):
-    if n is None:
-        raise TypeError("Missing required argument: 'n'")
-
     if return_vector:
         return jnp.ones(n)
     else:
         return jnp.eye(n)
 
 def _cscov_str(strc_mat, return_vector = False):
-    if strc_mat is None:
-        raise TypeError("Missing required argument: 'strc_mat'")
-    
     if return_vector:
         return strc_mat.sum(1)
     else:
         return jnp.diag(strc_mat.sum(1))
 
 def _cscov_wls(res, mse = True, return_vector = False):
-    if res is None:
-        raise TypeError("Missing required argument: 'res'")
-    
+    assert res is not None, "Missing required argument: 'res'"
     if not mse:
         res -= jnp.nanmean(res, 0)
-
     var = jnp.nanmean((res**2), 0)
-
     if return_vector:
         return var
     else:
@@ -314,43 +320,23 @@ def _cscov_wls(res, mse = True, return_vector = False):
 
 
 def _cscov_shr(res, mse=True, shr_fun = shrink_estim):
-    if res is None:
-        raise TypeError("Missing required argument: 'res'")
-
-    cov = shr_fun(x=res, mse=mse)
-
-    return cov
+    assert res is not None, "Missing required argument: 'res'"
+    return shr_fun(x=res, mse=mse)
 
 def _cscov_sam(res, mse=True):
-    if res is None:
-        raise TypeError("Missing required argument: 'res'")
-
+    assert res is not None, "Missing required argument: 'res'"
     return sample_estim(x=res, mse=mse)
 
-def _tecov_wlsv(agg_order, res, mse: bool = True, return_vector = False):
-    if agg_order is None:
-        raise ValueError("Missing required argument: 'agg_order'")
-    if res is None:
-        raise ValueError("Missing required argument: 'res'")
-    
-    if isinstance(agg_order, list):
-        kset = [int(x) for x in agg_order]
-        kset = sorted(kset, reverse=True)
-    else:
-        kset = factors(int(agg_order))
-    
-    if len(res.shape) != 1:
-        if res.shape[0] != 1:
-            raise ValueError("'res' is not a vector.")
-        res = res[0,:]
+def _tecov_wlsv(kset, res, mse: bool = True, return_vector = False):
+    assert res is not None, "Missing required argument: 'res'"
+    kset = jnp.array(kset)
+    m = kset.max()
+    div = jnp.array([m//k for k in kset])
+    N = int(res.shape[0] // div.sum())
 
-    m = max(kset)
-    div = [int(m/k) for k in kset]
-    N = int(res.shape[0]/sum([m/k for k in kset]))
-
-    idk = jnp.repeat(jnp.array(kset), jnp.array(div)*N)
-    var_freq = [sample_estim(x=res[idk==k], mse=mse).tolist() for k in kset]
-    out = jnp.repeat(jnp.array(var_freq), jnp.array(div))
+    idk = jnp.repeat(kset, div*N)
+    var_freq = jnp.array([sample_estim(x=res[idk==k], mse=mse).tolist() for k in kset])
+    out = jnp.repeat(var_freq, div)
 
     if return_vector:
         return out
@@ -358,46 +344,16 @@ def _tecov_wlsv(agg_order, res, mse: bool = True, return_vector = False):
         return jnp.diag(out)
 
 
-def _tecov_shr(agg_order, res, mse: bool = True, shr_fun = shrink_estim):
-    if agg_order is None:
-        raise ValueError("Missing required argument: 'agg_order'")
-    if res is None:
-        raise ValueError("Missing required argument: 'res'")
-    
-    if isinstance(agg_order, list):
-        kset = [int(x) for x in agg_order]
-        kset = sorted(kset, reverse=True)
-    else:
-        kset = factors(int(agg_order))
-    
-    if len(res.shape) != 1:
-        if res.shape[0] != 1:
-            raise ValueError("'res' is not a vector.")
-        res = res[0,:]
-
+def _tecov_shr(kset, res, mse: bool = True, shr_fun = shrink_estim):
+    assert res is not None, "Missing required argument: 'res'"
     m = max(kset)
-    N = res.shape[0]/sum([m/k for k in kset])
+    N = res.shape[0] // sum([m/k for k in kset])
     res_mat = vec2hmat(vec=res, h=int(N), kset=kset)
     return shr_fun(x=res_mat, mse=mse)
 
-def _tecov_sam(agg_order, res, mse: bool = True):
-    if agg_order is None:
-        raise ValueError("Missing required argument: 'agg_order'")
-    if res is None:
-        raise ValueError("Missing required argument: 'res'")
-    
-    if isinstance(agg_order, list):
-        kset = [int(x) for x in agg_order]
-        kset = sorted(kset, reverse=True)
-    else:
-        kset = factors(int(agg_order))
-    
-    if len(res.shape) != 1:
-        if res.shape[0] != 1:
-            raise ValueError("'res' is not a vector.")
-        res = res[0,:]
-
+def _tecov_sam(kset, res, mse: bool = True):
+    assert res is not None, "Missing required argument: 'res'"
     m = max(kset)
-    N = res.shape[0]/sum([m/k for k in kset])
+    N = res.shape[0] // sum([m/k for k in kset])
     res_mat = vec2hmat(vec=res, h=int(N), kset=kset)
     return sample_estim(x=res_mat, mse=mse)
