@@ -64,6 +64,9 @@ def lin_sys(lhs, rhs, solver = 'default'):
             return sol[0]
         vmap_solver = jax.vmap(fun_solver, 1)
         return vmap_solver(rhs).T
+    elif solver == 'cholesky':
+        cho_factor = jsl.cho_factor(lhs, lower=True)
+        return jsl.cho_solve(cho_factor, rhs)
     else:
         return jsl.solve(lhs, rhs)
 
