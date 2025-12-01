@@ -194,12 +194,8 @@ def rproj_immutable(base, cons_mat, cov_mat, immutable, solver="default"):
     if cons_mat.shape[1] != cov_mat.shape[0] or base.shape[1] != cov_mat.shape[0]:
         raise ValueError("The size of the matrices does not match.")
 
-    imm_cons_mat = jnp.eye(base.shape[1])[immutable, :]
-    imm_cons_vec = base[:, immutable]
+    imm_cons_mat = jax.nn.one_hot(immutable, base.shape[1])
     compl_cons_mat = jnp.vstack([cons_mat, imm_cons_mat])
-    compl_cons_vec = jnp.hstack(
-        [jnp.zeros((imm_cons_vec.shape[0], cons_mat.shape[0])), imm_cons_vec]
-    )
 
     # check immutable feasibility
     # TODO
@@ -210,7 +206,10 @@ def rproj_immutable(base, cons_mat, cov_mat, immutable, solver="default"):
         cov_cons = cov_mat @ compl_cons_mat.T
 
     # Point reconciled forecasts
-    rhs = compl_cons_vec.T - compl_cons_mat @ base.T
+    rhs = jnp.vstack([
+        - cons_mat @ base.T,
+        jnp.zeros((immutable.shape[0], base.shape[0]))
+    ])
     lhs = compl_cons_mat @ cov_cons
     lm = lin_sys(lhs=lhs, rhs=rhs, solver=solver)
     reco = base + (cov_cons @ lm).T
