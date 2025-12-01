@@ -35,7 +35,7 @@ def csrec(
     solver: str = "default",
     tol: float = 1e-6,
     nn: bool = False,
-    immutable: Optional[jnp.array] = None,
+    immutable: Optional[jnp.ndarray] = None,
     **kwargs,
 ):
     """
