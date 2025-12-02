@@ -34,7 +34,7 @@ class _reconcile:
         immutable: Optional[jnp.ndarray] = None,
     ):
         if immutable is not None:
-            if approach != "proj":
+            if approach not in ["proj", "proj_tol"]:
                 raise ValueError(
                     "The 'immutable' option is only available with the 'proj' approach."
                 )
@@ -51,6 +51,7 @@ class _reconcile:
                 base=self.base,
                 cons_mat=self.params.cons_mat(),
                 cov_mat=self.cov_mat,
+                immutable=immutable,
                 tol=tol,
             )
         elif approach == "strc":
@@ -125,22 +126,28 @@ def rstrc_tol(base, strc_mat, cov_mat, solver="default", tol=1e-5):
     return out
 
 
-def rproj_tol(base, cons_mat, cov_mat, tol=1e-12):
+def rproj_tol(base, cons_mat, cov_mat, immutable: Optional[jnp.ndarray], tol=1e-12):
     if cons_mat is None:
         raise TypeError("Missing required argument: 'cons_mat'")
 
     if cons_mat.shape[1] != cov_mat.shape[0] or base.shape[1] != cov_mat.shape[0]:
         raise ValueError("The size of the matrices does not match.")
 
+    b_precomputed = jnp.array(cons_mat) @ base.T
+    if immutable is not None:
+        cons_mat = jnp.vstack([cons_mat, jax.nn.one_hot(immutable, base.shape[1])])
+        b_precomputed = jnp.vstack(
+            [b_precomputed, jnp.zeros((immutable.size, base.shape[0]))]
+        )
+
     if len(cov_mat.shape) == 1:
         cons_mat = sps.csr_matrix(cons_mat)
         cons_cov = (cons_mat).multiply(cov_mat)
     else:
-        cons_cov = sps.csr_matrix(cov_mat)
         cons_cov = cons_mat @ cov_mat
 
     def matvec_action(y):
-        b = cons_mat @ base.T @ y
+        b = b_precomputed @ y
         A = sps.linalg.LinearOperator(
             (b.size, b.size), matvec=lambda v: cons_cov @ (cons_mat.T @ v)
         )
@@ -190,7 +197,7 @@ def rproj(
 
     rhs = -cons_mat @ base.T
     if immutable is not None:
-        rhs = jnp.vstack([rhs, jnp.zeros((immutable.shape[0]))])
+        rhs = jnp.vstack([rhs, jnp.zeros((immutable.shape[0], base.shape[0]))])
     # Point reconciled forecasts
     lhs = compl_cons_mat @ cov_cons
     lm = lin_sys(lhs=lhs, rhs=rhs, solver=solver)
