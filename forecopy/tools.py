@@ -18,8 +18,10 @@ different reconciliation methods. Two complementary toolsets are available:
 
 """
 
-import numpy as np
+from typing import Optional
+
 import jax.numpy as jnp
+
 from forecopy.fun import factors
 
 
@@ -127,7 +129,11 @@ class cstools:
     (3, 2)
     """
 
-    def __init__(self, agg_mat: jnp.ndarray = None, cons_mat: jnp.ndarray = None):
+    def __init__(
+        self,
+        agg_mat: Optional[jnp.ndarray] = None,
+        cons_mat: Optional[jnp.ndarray] = None,
+    ):
         self.agg_mat = agg_mat
         self._cons_mat = cons_mat
         self._strc_mat = None
@@ -274,7 +280,6 @@ class tetools:
     """
 
     def __init__(self, agg_order: list[int] | int, tew: str = "sum", fh: int = 1):
-
         self.m = int(max(agg_order)) if isinstance(agg_order, list) else agg_order
         kset_full = factors(self.m)
         if isinstance(agg_order, int):
@@ -300,7 +305,7 @@ class tetools:
         else:
             raise ValueError("tew")
 
-        freq = self.m / np.array(self.kset)
+        freq = self.m / jnp.array(self.kset)
         agg_mat = [
             jnp.kron(jnp.eye(int(freq[i]) * fh), weights[i])
             for i in range((len(freq) - 1))
@@ -311,6 +316,6 @@ class tetools:
 
     def strc_mat(self):
         return self._strc_mat
-    
-    def cons_mat(self):        
+
+    def cons_mat(self):
         return self._cons_mat

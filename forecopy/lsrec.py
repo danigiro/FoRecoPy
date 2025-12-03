@@ -5,24 +5,26 @@ frameworks.
 
 Two main reconciliation functions are included:
 
-- :func:`csrec() <forecopy.lsrec.csrec>`: 
+- :func:`csrec() <forecopy.lsrec.csrec>`:
   For hierarchically, grouped, or otherwise linearly constrained series
   observed at the same frequency.
 
-- :func:`terec() <forecopy.lsrec.terec>`: 
+- :func:`terec() <forecopy.lsrec.terec>`:
   For temporal hierarchies, where the same time series can be aggregated or
   linearly combined at multiple frequencies (e.g., monthly, quarterly,
   yearly).
 """
 
-import jax.numpy as jnp
 from typing import Optional
+
+import jax.numpy as jnp
+
+from forecopy.cov import cscov, tecov
+from forecopy.fun import hmat2vec, vec2hmat
+from forecopy.reco import _reconcile
 
 # From forecopy
 from forecopy.tools import cstools, tetools
-from forecopy.cov import cscov, tecov
-from forecopy.reco import _reconcile
-from forecopy.fun import vec2hmat, hmat2vec
 
 
 def csrec(
@@ -69,12 +71,12 @@ def csrec(
         cross-sectional zero constraints (alternative to ``agg_mat``).
 
     ``comb``: str | ndarray, default `ols`
-        A string specifying the reconciliation method. For a complete list, 
+        A string specifying the reconciliation method. For a complete list,
         see :func:`cscov() <forecopy.cov.cscov>`
         Alternatively, a custom :math:`(n \\times n)` covariance matrix.
 
     ``res``: ndarray, default None
-        An :math:`(N \\times n)` optional numeric matrix containing the 
+        An :math:`(N \\times n)` optional numeric matrix containing the
         residuals. This matrix is used to compute some covariance matrices.
 
     ``approach``: str, default `proj`
@@ -167,9 +169,7 @@ def csrec(
         if jnp.max(immutable) >= params.dim[0]:
             raise TypeError(f"max(immutable) must be less than {params.dim[0]}")
 
-    cov_mat = cscov(params=params, res=res).fit(
-        comb=comb, return_vector=True, **kwargs
-    )
+    cov_mat = cscov(params=params, res=res).fit(comb=comb, return_vector=True, **kwargs)
 
     reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
 
@@ -212,7 +212,7 @@ def terec(
         the lowest frequency time series.
 
     ``agg_order``: list | int
-        Highest available sampling frequency per seasonal cycle (max. order 
+        Highest available sampling frequency per seasonal cycle (max. order
         of temporal aggregation, :math:`m`), or a list representing a
         subset of :math:`p` factors of :math:`m`.
 
@@ -306,10 +306,10 @@ def terec(
     """
 
     assert len(base.shape) == 1, "Base should be a vector."
-        
+
     params = tetools(agg_order=agg_order, tew=tew)
-    
-    id_nn = None
+
+    id_nn = []
     if params._agg_mat is not None:
         id_nn = [False for i in range(0, params.ks)] + [
             True for i in range(0, params.m)
@@ -323,20 +323,21 @@ def terec(
     base = vec2hmat(vec=base, h=h, kset=params.kset)
 
     if immutable is not None:
+        assert len(immutable.shape) == 2, "immutable should be a matrix"
         immutable = immutable.astype(int)
         id_k = [x in params.kset for x in immutable[:, 0]]
         immutable = immutable[id_k, :]
-        id_h = [(y <= params.m / x).tolist() for x, y in immutable.tolist()]
-        immutable = immutable[id_h, :]
+        for x, y in immutable.tolist():
+            assert x in params.kset, f"{x} is not a factor of {params.m}"
+            assert y <= params.m // x, (
+                f"({x},{y}) is not a valid pair of temporal indices."
+            )
         kpos = sum([[x] * int(params.m / x) for x in params.kset], [])
         kpos = jnp.asarray(kpos)
-        immutable = [jnp.flatnonzero(kpos == k)[h - 1] for k, h in immutable.tolist()]
-        immutable = jnp.hstack(immutable)
+        kpos = [jnp.where(kpos == k)[0][h - 1] for k, h in immutable.tolist()]
+        immutable = jnp.hstack(kpos)
 
-    cov_mat = tecov(params=params, res=res).fit(
-        comb=comb, return_vector=True, **kwargs
-    )
-
+    cov_mat = tecov(params=params, res=res).fit(comb=comb, return_vector=True, **kwargs)
     reco = _reconcile(base=base, cov_mat=cov_mat, params=params, id_nn=id_nn)
 
     rf = reco.fit(approach=approach, solver=solver, tol=tol, nn=nn, immutable=immutable)

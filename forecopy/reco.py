@@ -36,7 +36,7 @@ class _reconcile:
         if immutable is not None:
             if approach not in ["proj", "proj_tol"]:
                 raise ValueError(
-                    "The 'immutable' option is only available with the 'proj' approach."
+                    "The 'immutable' option is only available with the 'proj' and 'proj_tol' approach."
                 )
         if approach == "proj":
             reco = rproj(
