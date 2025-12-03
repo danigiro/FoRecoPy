@@ -1,6 +1,0 @@
-jax>=0.4.38
-lineax>=0.0.8
-numpy>=2.0.2
-pandas>=2.2.2
-scipy>=1.14.1
-sphinxawesome_theme>=5.3.2

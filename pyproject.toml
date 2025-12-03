@@ -26,13 +26,27 @@ dependencies = [
     "pandas>=2.2.2",
     "scipy>=1.14.1",
     "jax>=0.4.31",
-    "lineax>=0.0.8"
+    "lineax>=0.0.8",
+    "jaxopt>=0.8.5",
 ]
 
 [tool.setuptools]
 packages = ["forecopy"]
 
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+forecopy = { workspace = true }
+
 [dependency-groups]
+dev = [
+    "forecopy",
+    "jupyterlab>=4.5.0",
+    "pytest>=9.0.1",
+]
 docs = ["sphinx", "sphinxawesome_theme"]
 
 [project.urls]
