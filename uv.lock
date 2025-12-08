@@ -453,7 +453,6 @@ source = { editable = "." }
 dependencies = [
     { name = "jax", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "jax", version = "0.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "jaxopt" },
     { name = "lineax" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -477,7 +476,6 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "jax", specifier = ">=0.4.31" },
-    { name = "jaxopt", specifier = ">=0.8.5" },
     { name = "lineax", specifier = ">=0.0.8" },
     { name = "numpy", specifier = ">=2.0.2" },
     { name = "pandas", specifier = ">=2.2.2" },
@@ -782,25 +780,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/68/01/e1c44924d3a2a84a6dbc97d9fa515712decc92199a16a519c44e98dcfe33/jaxlib-0.7.2-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:84e158bbc79eab93b1493cdd031f93e1483b7a26a98edfdd2868f3d0752b0228", size = 53648014, upload-time = "2025-09-16T16:50:07.348Z" },
     { url = "https://files.pythonhosted.org/packages/ee/8e/b16f6f1957aba6736f1c90c0161060deb1c1f4c91ea68cbced3ba7b6e163/jaxlib-0.7.2-cp314-cp314t-manylinux_2_27_aarch64.whl", hash = "sha256:4716dc886bda1372a2c78dc6d3c23e50049044d7c552d22a95a14aac6e040731", size = 71659925, upload-time = "2025-09-16T16:50:11.135Z" },
     { url = "https://files.pythonhosted.org/packages/0c/e2/47c52aa806e98f00754b1c303f85d0594d623a7ff5c8592923f7bae45fce/jaxlib-0.7.2-cp314-cp314t-manylinux_2_27_x86_64.whl", hash = "sha256:3ecc0b2e76c089cef350f7916275431b299a17615e32ced1ece18cdd47df6bd2", size = 78264963, upload-time = "2025-09-16T16:50:14.613Z" },
-]
-
-[[package]]
-name = "jaxopt"
-version = "0.8.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jax", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "jax", version = "0.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "jaxlib", version = "0.6.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "jaxlib", version = "0.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.16.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/da/ff7d7fbd13b8ed5e8458e80308d075fc649062b9f8676d3fc56f2dc99a82/jaxopt-0.8.5.tar.gz", hash = "sha256:2790bd68ef132b216c083a8bc7a2704eceb35a92c0fc0a1e652e79dfb1e9e9ab", size = 121709, upload-time = "2025-04-14T17:59:01.618Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/d8/55e0901103c93d57bab3b932294c216f0cbd49054187ce29f8f13808d530/jaxopt-0.8.5-py3-none-any.whl", hash = "sha256:ff221d1a86908ec759eb1e219ee1d12bf208a70707e961bf7401076fe7cf4d5e", size = 172434, upload-time = "2025-04-14T17:59:00.342Z" },
 ]
 
 [[package]]
