@@ -1,18 +1,21 @@
-import numpy as np
+from functools import partial
+from typing import Optional
+
 import jax as jax
 import jax.numpy as jnp
 import scipy.sparse as sps
-from functools import partial
+
 from forecopy.fun import isDiag, lin_sys
+from forecopy.tools import cstools, tetools
 
 
 class _reconcile:
     def __init__(
         self,
-        base: jnp.ndarray = None,
-        cov_mat: jnp.ndarray = None,
-        params=None,
-        id_nn: list = None,
+        base: jnp.ndarray,
+        cov_mat: jnp.ndarray,
+        params: cstools | tetools,
+        id_nn: list = [],
     ):
         self.base = base
         self.params = params
@@ -23,21 +26,24 @@ class _reconcile:
         self.id_nn = id_nn
 
     def fit(
-        self, approach="proj", solver="default", tol=1e-12, nn=False, immutable=None
+        self,
+        approach="proj",
+        solver="default",
+        tol=1e-12,
+        nn=False,
+        immutable: Optional[jnp.ndarray] = None,
     ):
         if immutable is not None:
-            if approach != "proj":
+            if approach not in ["proj", "proj_tol"]:
                 raise ValueError(
-                    "The 'immutable' option is only available with the 'proj' approach."
+                    "The 'immutable' option is only available with the 'proj' and 'proj_tol' approach."
                 )
-            else:
-                approach = "proj_immutable"
-
         if approach == "proj":
             reco = rproj(
                 base=self.base,
                 cons_mat=self.params.cons_mat(),
                 cov_mat=self.cov_mat,
+                immutable=immutable,
                 solver=solver,
             )
         elif approach == "proj_tol":
@@ -45,6 +51,7 @@ class _reconcile:
                 base=self.base,
                 cons_mat=self.params.cons_mat(),
                 cov_mat=self.cov_mat,
+                immutable=immutable,
                 tol=tol,
             )
         elif approach == "strc":
@@ -61,14 +68,6 @@ class _reconcile:
                 cov_mat=self.cov_mat,
                 solver=solver,
                 tol=tol,
-            )
-        elif approach == "proj_immutable":
-            reco = rproj_immutable(
-                base=self.base,
-                cons_mat=self.params.cons_mat(),
-                cov_mat=self.cov_mat,
-                immutable=immutable,
-                solver=solver,
             )
         else:
             raise ValueError(f"The '{approach}' approach is not available.")
@@ -107,7 +106,7 @@ def rstrc_tol(base, strc_mat, cov_mat, solver="default", tol=1e-5):
 
     if len(cov_mat.shape) == 1:
         strc_mat = sps.csr_matrix(strc_mat)
-        strc_cov = (strc_mat.T).multiply(np.reciprocal(cov_mat))
+        strc_cov = (strc_mat.T).multiply(jnp.reciprocal(cov_mat))
     else:
         strc_cov = lin_sys(lhs=cov_mat, rhs=strc_mat, solver=solver).T
         strc_cov = sps.csr_matrix(strc_cov)
@@ -123,26 +122,32 @@ def rstrc_tol(base, strc_mat, cov_mat, solver="default", tol=1e-5):
     bts = sps.linalg.LinearOperator(
         (strc_mat.shape[1], base.shape[0]), matvec=matvec_action
     )
-    out = (strc_mat @ (bts @ np.identity(bts.shape[1]))).T
+    out = (strc_mat @ (bts @ jnp.identity(bts.shape[1]))).T
     return out
 
 
-def rproj_tol(base, cons_mat, cov_mat, tol=1e-12):
+def rproj_tol(base, cons_mat, cov_mat, immutable: Optional[jnp.ndarray], tol=1e-12):
     if cons_mat is None:
         raise TypeError("Missing required argument: 'cons_mat'")
 
     if cons_mat.shape[1] != cov_mat.shape[0] or base.shape[1] != cov_mat.shape[0]:
         raise ValueError("The size of the matrices does not match.")
 
+    b_precomputed = jnp.array(cons_mat) @ base.T
+    if immutable is not None:
+        cons_mat = jnp.vstack([cons_mat, jax.nn.one_hot(immutable, base.shape[1])])
+        b_precomputed = jnp.vstack(
+            [b_precomputed, jnp.zeros((immutable.size, base.shape[0]))]
+        )
+
     if len(cov_mat.shape) == 1:
         cons_mat = sps.csr_matrix(cons_mat)
         cons_cov = (cons_mat).multiply(cov_mat)
     else:
-        cons_cov = sps.csr_matrix(cov_mat)
         cons_cov = cons_mat @ cov_mat
 
     def matvec_action(y):
-        b = cons_mat @ base.T @ y
+        b = b_precomputed @ y
         A = sps.linalg.LinearOperator(
             (b.size, b.size), matvec=lambda v: cons_cov @ (cons_mat.T @ v)
         )
@@ -152,28 +157,8 @@ def rproj_tol(base, cons_mat, cov_mat, tol=1e-12):
     lm = sps.linalg.LinearOperator(
         (cons_mat.shape[0], base.shape[0]), matvec=matvec_action
     )
-    lm = lm @ np.identity(lm.shape[1])
+    lm = lm @ jnp.identity(lm.shape[1])
     out = base - (cons_cov.T @ lm).T
-    return out
-
-
-@partial(jax.jit, static_argnames=["solver"])
-def rproj(base, cons_mat, cov_mat, solver="default"):
-    if cons_mat is None:
-        raise TypeError("Missing required argument: 'cons_mat'")
-
-    if cons_mat.shape[1] != cov_mat.shape[0] or base.shape[1] != cov_mat.shape[0]:
-        raise ValueError("The size of the matrices does not match.")
-
-    if len(cov_mat.shape) == 1:
-        cov_cons = (cov_mat * cons_mat).T
-    else:
-        cov_cons = cov_mat @ cons_mat.T
-
-    lhs = cons_mat @ cov_cons
-    rhs = cons_mat @ base.T
-    lm = lin_sys(lhs=lhs, rhs=rhs, solver=solver)
-    out = base - (cov_cons @ lm).T
     return out
 
 
@@ -187,19 +172,20 @@ def sntz(reco, strc_mat, id_nn):
 
 
 @partial(jax.jit, static_argnames=["solver"])
-def rproj_immutable(base, cons_mat, cov_mat, immutable, solver="default"):
+def rproj(
+    base, cons_mat, cov_mat, immutable: Optional[jnp.ndarray] = None, solver="default"
+):
     if cons_mat is None:
         raise TypeError("Missing required argument: 'cons_mat'")
 
     if cons_mat.shape[1] != cov_mat.shape[0] or base.shape[1] != cov_mat.shape[0]:
         raise ValueError("The size of the matrices does not match.")
 
-    imm_cons_mat = jnp.eye(base.shape[1])[immutable, :]
-    imm_cons_vec = base[:, immutable]
-    compl_cons_mat = jnp.vstack([cons_mat, imm_cons_mat])
-    compl_cons_vec = jnp.hstack(
-        [jnp.zeros((imm_cons_vec.shape[0], cons_mat.shape[0])), imm_cons_vec]
-    )
+    if immutable is not None:
+        imm_cons_mat = jax.nn.one_hot(immutable, base.shape[1])
+        compl_cons_mat = jnp.vstack([cons_mat, imm_cons_mat])
+    else:
+        compl_cons_mat = cons_mat
 
     # check immutable feasibility
     # TODO
@@ -209,8 +195,10 @@ def rproj_immutable(base, cons_mat, cov_mat, immutable, solver="default"):
     else:
         cov_cons = cov_mat @ compl_cons_mat.T
 
+    rhs = -cons_mat @ base.T
+    if immutable is not None:
+        rhs = jnp.vstack([rhs, jnp.zeros((immutable.shape[0], base.shape[0]))])
     # Point reconciled forecasts
-    rhs = compl_cons_vec.T - compl_cons_mat @ base.T
     lhs = compl_cons_mat @ cov_cons
     lm = lin_sys(lhs=lhs, rhs=rhs, solver=solver)
     reco = base + (cov_cons @ lm).T

@@ -4,6 +4,7 @@ import scipy.sparse as sps
 import jax as jax
 from itertools import chain
 import lineax as lx
+import jax.scipy.linalg as jsl
 
 def factors(n):
     kset = list(chain.from_iterable([[i, n//i] for i in range(1, int(n**0.5) + 1) if n % i == 0]))
@@ -55,15 +56,19 @@ def isDiag(M):
 
 def lin_sys(lhs, rhs, solver = 'default'):
     if solver == 'lineax':
-        lhs = lx.MatrixLinearOperator(lhs)
-        def fun_solver(x): 
-            lx.linear_solve(
-                lhs, x, solver=lx.AutoLinearSolver(well_posed=None)
-            ).value
-        vmap_solver = jax.vmap(fun_solver, [1])
+        lhs = lx.MatrixLinearOperator(lhs, lx.positive_semidefinite_tag)
+        solver = lx.Cholesky()
+        state = solver.init(lhs, options={})
+        def fun_solver(x):
+            sol = solver.compute(state, x, options={})
+            return sol[0]
+        vmap_solver = jax.vmap(fun_solver, 1)
         return vmap_solver(rhs).T
+    elif solver == 'cholesky':
+        cho_factor = jsl.cho_factor(lhs, lower=True)
+        return jsl.cho_solve(cho_factor, rhs)
     else:
-        return jnp.linalg.solve(lhs, rhs)
+        return jsl.solve(lhs, rhs)
 
 def _mcrossprod(x):
     return jnp.dot(x.T,x)
