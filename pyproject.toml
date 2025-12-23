@@ -32,7 +32,20 @@ dependencies = [
 [tool.setuptools]
 packages = ["forecopy"]
 
+[tool.uv.workspace]
+members = [
+    ".",
+]
+
+[tool.uv.sources]
+forecopy = { workspace = true }
+
 [dependency-groups]
+dev = [
+    "forecopy",
+    "jupyterlab>=4.5.0",
+    "pytest>=9.0.1",
+]
 docs = ["sphinx", "sphinxawesome_theme"]
 
 [project.urls]
