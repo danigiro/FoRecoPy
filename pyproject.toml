@@ -1,6 +1,6 @@
 [project]
 name = "forecopy"
-version = "0.1.1"
+version = "0.1.2"
 description = "Forecast Reconciliation in Python"
 authors = [
      {name = "Daniele Girolimetto", email = "daniele.girolimetto@unipd.it"},
@@ -46,6 +46,8 @@ dev = [
     "jupyterlab>=4.5.0",
     "pytest>=9.0.1",
     "pytest-cov",
+    "sphinx>=8",
+    "sphinxawesome-theme",
 ]
 docs = ["sphinx", "sphinxawesome_theme"]
 
