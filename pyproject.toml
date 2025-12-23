@@ -45,6 +45,7 @@ dev = [
     "forecopy",
     "jupyterlab>=4.5.0",
     "pytest>=9.0.1",
+    "pytest-cov",
 ]
 docs = ["sphinx", "sphinxawesome_theme"]
 
